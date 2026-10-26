@@ -28,7 +28,7 @@ Trạng thái: ✅ ĐẠT (có bằng chứng do tool sinh) · ⚠️ CÓ VẤN 
 |---|---|---|---|---|
 | AC-1 | Bảng giao diện đầy đủ, nhất quán với đặc tả | Đối chiếu bảng với cổng module trong RTL | `02_SPECIFICATION/interface.md` §2 | ✅ |
 | AC-2 | Mỗi khẳng định kèm bằng chứng và điều kiện tạo ra | Rà từng dòng RTM | `07_TRACEABILITY/RTM.csv` | ✅ (phần đã chạy) |
-| AC-3 | Trả lời câu phân tích riêng bằng dữ liệu của chính mình | Charter mục 9 | `06_GDSII/physical_report.md` · `06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json` | ⚠️ so sánh biến thể chưa đo |
+| AC-3 | Trả lời câu phân tích riêng bằng dữ liệu của chính mình | Charter mục 9 | `06_GDSII/physical_report.md` · `06_GDSII/runs/RUN_2026-10-26_05-07-08/final/metrics.json` | ⚠️ so sánh biến thể chưa đo |
 | AC-4 | Nêu giới hạn trung thực, không phát biểu vượt mức | Quét kết luận | `07_TRACEABILITY/limitations.md` | ✅ |
 
 ## 2. Tiêu chí chức năng
@@ -63,7 +63,7 @@ Trạng thái: ✅ ĐẠT (có bằng chứng do tool sinh) · ⚠️ CÓ VẤN 
 | AC-15 | Floorplan / Placement / Routing | ✅ có archive LibreLane |
 | AC-16 | DRC sạch | ✅ metrics archive ghi Magic/KLayout không lỗi |
 | AC-17 | LVS khớp | ✅ metrics archive không có khác biệt device/net |
-| AC-18 | Sinh được file GDSII | ✅ `06_GDSII/runs/RUN_2026-10-26_04-13-31/final/gds/f08_stepper_ctrl.gds` |
+| AC-18 | Sinh được file GDSII | ✅ `06_GDSII/runs/RUN_2026-10-26_05-07-08/final/gds/f08_stepper_ctrl.gds` |
 
 Chi tiết metric và log: [`../06_GDSII/physical_report.md`](../06_GDSII/physical_report.md). Đây là bằng chứng flow vật lý của RTL core, không phải tuyên bố ASIC sign-off. README nguồn vẫn đánh dấu P&R là chưa chạy; khác biệt với archive được ghi tại `07_TRACEABILITY/limitations.md`.
 

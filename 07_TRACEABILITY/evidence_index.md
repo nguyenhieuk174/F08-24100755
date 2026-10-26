@@ -9,6 +9,7 @@
 | Kết quả testbench | `05_VERIFICATION/simulation.log` | `04_IMPLEMENTATION/scripts/01_run_sim.sh` |
 | Waveform VCD | `05_VERIFICATION/waveforms/f08_tb.vcd` | `04_IMPLEMENTATION/scripts/01_run_sim.sh`; GitHub Actions artifact `mo-phong-F08` |
 | Danh sách ca | `05_VERIFICATION/test_matrix.csv` | Đối chiếu ca Charter với kết quả đã chạy |
+| Artifact mô phỏng CI lưu trữ | `06_GDSII/simulation/mo-phong-F08/` | GitHub Actions; Icarus Verilog 12.0 |
 
 ## 2. Tổng hợp, timing và power
 
@@ -19,8 +20,8 @@ metrics sau P&R vào bảng pre-route.
 
 ## 3. Physical-flow archive
 
-Archive LibreLane/OpenROAD:
-[`../06_GDSII/runs/RUN_2026-10-26_04-13-31/`](../06_GDSII/runs/RUN_2026-10-26_04-13-31/).
+Archive LibreLane/OpenROAD mới nhất:
+[`../06_GDSII/runs/RUN_2026-10-26_05-07-08/`](../06_GDSII/runs/RUN_2026-10-26_05-07-08/).
 Metrics JSON, GDS và log DRC/LVS/STA được liệt kê trong
 [`../06_GDSII/physical_report.md`](../06_GDSII/physical_report.md).
 

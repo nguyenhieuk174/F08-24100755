@@ -38,7 +38,7 @@ set_output_delay 1.0 -clock clk [all_outputs]
 | G-1 | Chu kỳ clock | `10,0 ns` — **giả định khởi điểm**, chưa phải yêu cầu hệ thống |
 | G-2 | Input/output delay | 1,0 ns — giả định khởi điểm cho biên IO |
 | G-3 | Thư viện + PVT | `sky130_fd_sc_hd__tt_025C_1v80.lib` (typical · 25 °C · 1,80 V) |
-| G-4 | Ký sinh dây (RC) | Có archive sau routing; SPEF/STA trong `06_GDSII/runs/RUN_2026-10-26_04-13-31/final/` |
+| G-4 | Ký sinh dây (RC) | Có archive sau routing; SPEF/STA trong `06_GDSII/runs/RUN_2026-10-26_05-07-08/final/` |
 
 > ❗ Không được diễn giải "period 10 ns" thành "F08 chạy được ở 100 MHz".
 > Tần số tối đa thật phải lấy từ STA sau routing, ở nhiều góc PVT.
@@ -52,7 +52,7 @@ set_output_delay 1.0 -clock clk [all_outputs]
 | Setup / hold violation count | 0 / 0 |
 | Timing source | Post-route metrics, across configured corners |
 
-Flow: LibreLane / OpenROAD · Bằng chứng: `06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json`.
+Flow: LibreLane / OpenROAD · Bằng chứng: `06_GDSII/runs/RUN_2026-10-26_05-07-08/final/metrics.json`.
 Đường tới hạn `speed_div[2]` → `_172_` và độ trễ `3,48 ns` là số liệu OpenSTA được công bố trong README nguồn; không được gán cho metrics post-route ở trên.
 
 ## 5. Nghĩa vụ của tầng ngoài

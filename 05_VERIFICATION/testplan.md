@@ -8,8 +8,8 @@
 |---|---|---|---|---|
 | L0 | Mô hình chuẩn viết bằng Python, độc lập với RTL | `golden_model/reference_model.py` | CPython 3 | ✅ PASS |
 | L1 | Mô hình chuẩn viết bằng SystemVerilog | `golden_model/—` | Icarus Verilog 12.0 (stable) | ⬜ gói nguồn không có |
-| L2 | Mô phỏng RTL với testbench tự kiểm | `testbench/f08_tb.sv` | Icarus Verilog 13.0 (chạy lại cục bộ); hồ sơ nguồn ghi 12.0 | ✅ PASS |
-| L3 | Kiểm cấu trúc — số flip-flop phù hợp phân loại | `../06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json` | LibreLane / Yosys | ✅ 15 FF |
+| L2 | Mô phỏng RTL với testbench tự kiểm | `testbench/f08_tb.sv` | Icarus Verilog 12.0 (GitHub Actions mới nhất); 13.0 (chạy lại cục bộ) | ✅ PASS |
+| L3 | Kiểm cấu trúc — số flip-flop phù hợp phân loại | `../06_GDSII/runs/RUN_2026-10-26_05-07-08/final/metrics.json` | LibreLane / Yosys | ✅ 15 FF |
 | L4 | Mô phỏng gate-level trên netlist | — | — | ⬜ chưa chạy |
 | L5 | Mô phỏng post-layout có back-annotate SDF | — | — | ⬜ chưa chạy |
 

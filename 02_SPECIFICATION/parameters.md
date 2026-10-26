@@ -38,7 +38,7 @@
 
 | Chỉ số | Giá trị | Nguồn |
 |---|---:|---|
-| Standard-cell instances sau P&R | 148 | `06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json` |
+| Standard-cell instances sau P&R | 148 | `06_GDSII/runs/RUN_2026-10-26_05-07-08/final/metrics.json` |
 | Tổng instances (gồm filler/tap/repair) | 485 | như trên |
 | Flip-flop | 15 | như trên |
 | Diện tích standard cell | 1362,56 µm² | như trên |
@@ -50,7 +50,8 @@
 
 ## 4. Cấu hình máy đọc được
 
-Xem `04_IMPLEMENTATION/scripts/config_librelane.json`; archive log nằm trong `06_GDSII/runs/`.
+Xem `04_IMPLEMENTATION/scripts/config_librelane.json`; archive mới nhất nằm trong
+`06_GDSII/runs/RUN_2026-10-26_05-07-08/`.
 
 README nguồn đánh dấu P&R là chưa chạy trong bảng trạng thái; hiện có archive
 LibreLane riêng. Xem `07_TRACEABILITY/limitations.md` để không gộp hai trạng thái.

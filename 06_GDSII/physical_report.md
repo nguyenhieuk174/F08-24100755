@@ -20,10 +20,10 @@ Các giá trị này được chép theo README nguồn. Báo cáo pre-route chi
 
 ## 2. Archive LibreLane/OpenROAD
 
-Ngoài các số ở bảng trên, archive
-[`runs/RUN_2026-10-26_04-13-31/`](runs/RUN_2026-10-26_04-13-31/) chứa một lần
-chạy physical design riêng cho `f08_stepper_ctrl`, với cấu hình LibreLane,
-sky130A và `sky130_fd_sc_hd`.
+Ngoài các số ở bảng trên, archive mới nhất
+[`runs/RUN_2026-10-26_05-07-08/`](runs/RUN_2026-10-26_05-07-08/) chứa lần chạy
+physical design cho `f08_stepper_ctrl`, với cấu hình LibreLane, sky130A và
+`sky130_fd_sc_hd`. Archive trước `RUN_2026-10-26_04-13-31` được giữ nguyên.
 
 | Chỉ số trong archive | Giá trị |
 |---|---:|
@@ -40,8 +40,8 @@ sky130A và `sky130_fd_sc_hd`.
 
 Bằng chứng chính:
 
-- Metrics: [`final/metrics.json`](runs/RUN_2026-10-26_04-13-31/final/metrics.json)
-- GDS: [`final/gds/f08_stepper_ctrl.gds`](runs/RUN_2026-10-26_04-13-31/final/gds/f08_stepper_ctrl.gds)
+- Metrics: [`final/metrics.json`](runs/RUN_2026-10-26_05-07-08/final/metrics.json)
+- GDS: [`final/gds/f08_stepper_ctrl.gds`](runs/RUN_2026-10-26_05-07-08/final/gds/f08_stepper_ctrl.gds)
 - STA post-route: `55-openroad-stapostpnr/`
 - Routing: `44-openroad-detailedrouting/`
 - DRC: `64-magic-drc/` và `65-klayout-drc/`
@@ -53,7 +53,9 @@ từ slack hoặc độ trễ khi chưa có yêu cầu tần số của hệ th�
 
 ## 3. Trạng thái và giới hạn
 
-Archive có đầu ra GDS, log P&R, DRC và LVS. Bảng trạng thái ở README nguồn vẫn
+Lần chạy mới nhất kết thúc `Flow complete`; log báo routing, Magic/KLayout DRC,
+LVS, setup và hold checks đều clear, và `error.log` rỗng. Metrics của lần chạy mới
+trùng với archive trước. Bảng trạng thái ở README nguồn vẫn
 ghi P&R là chưa chạy; sự khác biệt này được giữ nguyên để không sửa nội dung
 file nguồn và được ghi rõ là điểm cần đối chiếu khi chốt bản nộp. Archive chứng
 minh có một lần chạy được lưu, nhưng không tự chứng minh ASIC sign-off, khả năng

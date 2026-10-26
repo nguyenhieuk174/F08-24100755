@@ -51,7 +51,7 @@ Trích nguyên văn Charter mục 1:
 | Tầng xử lý phía sau | Digital | Tiêu thụ kết quả của F08 |
 
 Bằng chứng cho dòng phân loại của F08: LibreLane ghi nhận **15 flip-flop** trong
-[`06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json`](../06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json).
+[`06_GDSII/runs/RUN_2026-10-26_05-07-08/final/metrics.json`](../06_GDSII/runs/RUN_2026-10-26_05-07-08/final/metrics.json).
 
 ---
 

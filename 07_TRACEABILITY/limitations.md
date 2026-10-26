@@ -4,8 +4,8 @@
 
 - Mô hình chuẩn Python và mô phỏng RTL có log PASS trong `05_VERIFICATION/`.
 - RTL core tổng hợp được; README dự án công bố 101 cell và 15 flip-flop.
-- Archive trong `06_GDSII/runs/RUN_2026-10-26_04-13-31/` có GDS, metrics
-  post-route, DRC và LVS.
+- Archive mới nhất trong `06_GDSII/runs/RUN_2026-10-26_05-07-08/` có GDS,
+  metrics post-route, SPEF/SDF, DRC và LVS; archive trước được giữ để đối chiếu.
 
 ## 2. Những gì chưa được chứng minh
 

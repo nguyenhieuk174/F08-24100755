@@ -1,0 +1,3 @@
+VCD info: dumpfile waveforms/f08_tb.vcd opened for output.
+F08 TB completed
+05_VERIFICATION/testbench/f08_tb.sv:119: $finish called at 486 (1s)

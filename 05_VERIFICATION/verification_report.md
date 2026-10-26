@@ -11,7 +11,7 @@
 
 
 
-**Run GitHub Actions:** `RUN_2026-10-26_04-13-31` · **Phiên bản báo cáo:** v1.1
+**Run GitHub Actions mới nhất:** `RUN_2026-10-26_05-07-08` · **Phiên bản báo cáo:** v1.2
 
 ---
 
@@ -22,7 +22,7 @@
 | Hạng mục | Giá trị |
 |---|---|
 | Hệ điều hành | Ubuntu 22.04 LTS (x86-64) |
-| Công cụ mô phỏng | Hồ sơ nguồn ghi Icarus 12.0; lần chạy lại testbench dùng Icarus 13.0 (`-g2012`) |
+| Công cụ mô phỏng | Icarus Verilog 12.0 (stable), `-g2012`; phiên bản ghi tại [`tool_versions.txt`](tool_versions.txt) |
 | Top module | `f08_stepper_ctrl` |
 | RTL core của hồ sơ | `04_IMPLEMENTATION/rtl/f08_stepper_ctrl.sv` |
 | Wrapper tích hợp | `src/project.v` |
@@ -46,16 +46,17 @@
 
 ```
 F08 TB completed
-05_VERIFICATION/testbench/f08_tb.sv:116: $finish called at 486 (1s)
+05_VERIFICATION/testbench/f08_tb.sv:119: $finish called at 486 (1s)
 ```
 
 Log đầy đủ của lần chạy lại hiện tại: [`simulation.log`](simulation.log).
 Waveform VCD được lưu tại [`waveforms/f08_tb.vcd`](waveforms/f08_tb.vcd) và được
-GitHub Actions tải lên trong artifact `mo-phong-F08`.
+GitHub Actions tải lên trong artifact `mo-phong-F08`. Artifact CI gốc được lưu tại
+[`../06_GDSII/simulation/mo-phong-F08/`](../06_GDSII/simulation/mo-phong-F08/).
 
 ## 4. Kiểm cấu trúc — số flip-flop
 
-Trích metrics do LibreLane sinh: [`metrics.json`](../06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json).
+Trích metrics do LibreLane sinh: [`metrics.json`](../06_GDSII/runs/RUN_2026-10-26_05-07-08/final/metrics.json).
 
 | Chỉ số | Giá trị |
 |---|---:|

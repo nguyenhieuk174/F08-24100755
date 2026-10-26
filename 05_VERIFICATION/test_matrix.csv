@@ -4,7 +4,8 @@ TC-002,Tu xay,"Ca bien: quay nghich tu state 0 wrap ve state 7 voi speed_div=0",
 TC-003,Tu xay,"Ca bien bo chia: speed_div=2 giu state trong clock dau va tang moi hai clock",PASS,simulation.log
 L0-PY,Tu xay,"Mo hinh chuan Python doc lap",PASS,python_reference_run.log
 L2-SIM,Tu xay,"Mo phong RTL voi testbench tu kiem",PASS,simulation.log
-L3-FF,Charter muc 10,"So cell tuan tu phai phu hop phan loai Charter: Tuần tự",PASS,../06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json
-L3-SYN,Tu xay,"RTL tong hop duoc ra standard cell sky130",PASS,../06_GDSII/runs/RUN_2026-10-26_04-13-31/06-yosys-synthesis/yosys-synthesis.log
+L2-VCD,Tu xay,"Waveform VCD duoc tao va luu cung artifact GitHub Actions",PASS,../06_GDSII/simulation/mo-phong-F08/waveforms/f08_tb.vcd
+L3-FF,Charter muc 10,"So cell tuan tu phai phu hop phan loai Charter: Tuần tự",PASS,../06_GDSII/runs/RUN_2026-10-26_05-07-08/final/metrics.json
+L3-SYN,Tu xay,"RTL tong hop duoc ra standard cell sky130",PASS,../06_GDSII/runs/RUN_2026-10-26_05-07-08/06-yosys-synthesis/yosys-synthesis.log
 L4-GATE,Tu xay,"Mo phong gate-level tren netlist",CHUA CHAY,-
 L5-SDF,Tu xay,"Mo phong post-layout co back-annotate SDF",CHUA CHAY,-

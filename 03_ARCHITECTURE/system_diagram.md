@@ -112,7 +112,7 @@ Bằng chứng F08 là digital tuần tự thuần: `synth_stat.txt` chỉ có s
 
 ## 4. Vòng đời RTL → GDSII — trạng thái theo CI run
 
-Run `RUN_2026-10-26_04-13-31`; archive và log trong [`../06_GDSII/`](../06_GDSII/).
+Run mới nhất `RUN_2026-10-26_05-07-08`; archive và log trong [`../06_GDSII/`](../06_GDSII/).
 
 ```
  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
