@@ -1,7 +1,7 @@
 {
   "DESIGN_NAME": "f08_stepper_ctrl",
   "VERILOG_FILES": [
-    "dir::rtl/f08_stepper_ctrl.sv"
+    "dir::rtl/project.sv"
   ],
   "PNR_SDC_FILE": "dir::04_IMPLEMENTATION/constraints/design.sdc",
   "SIGNOFF_SDC_FILE": "dir::04_IMPLEMENTATION/constraints/design.sdc",
