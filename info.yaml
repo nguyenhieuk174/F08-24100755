@@ -1,20 +1,17 @@
-# ─────────────────────────────────────────────────────────────────────────────
-#  EEE703128 — Bài kiểm tra số 2 · thông tin dự án
-#  Sửa mọi chỗ có <...>. Đây là tệp chuỗi công cụ đọc để biết thiết kế của em.
-# ─────────────────────────────────────────────────────────────────────────────
+─────────────────────────────────────────────────────────────────────────
 project:
-  title:        "<Mã đề> — <Tên đề tài>"        # ví dụ: "A01 — Bộ cộng 8-bit ripple-carry"
-  author:       "<Họ và tên> (<MSSV>)"
+  title:        "F08 — FSM điều khiển động cơ bước"
+  author:       "Nguyễn Xuân Hiếu - 24100755"
   discord:      ""
-  description:  "<Một câu mô tả thiết kế làm gì>"
+  description:  "Đề F08 yêu cầu thiết kế một FSM điều khiển động cơ bước. Đề tài này giúp sinh viên hiểu rõ hơn về cách thiết kế FSM trong Verilog và áp dụng vào các ứng dụng thực tế."
   language:     "Verilog"
-  clock_hz:     0        # đề TỔ HỢP để 0 · đề TUẦN TỰ ghi tần số, ví dụ 10000000
+  clock_hz:     0        # đề TỔ HỢP để 0 · đề TUẦN TỰ ghi tần số
 
   # Kích thước ô. 1x1 đủ cho hầu hết đề; đề nhóm J có thể cần 2x1.
   tiles: "1x1"
 
   # Tên module PHẢI khớp đúng tên trong src/project.v
-  top_module: "tt_um_eee703128_<MSSV>"
+  top_module: "tt_um_eee703128_24100755"
 
   source_files:
     - "project.v"

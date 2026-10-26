@@ -1,31 +1,43 @@
+# F08 — FSM điều khiển động cơ bước
+
+## Thông tin dự án
+
+| Trường | Giá trị |
+|---|---|
+| Tác giả | Nguyễn Xuân Hiếu · 24100755 |
+| Mã đề | F08 |
+| Mô tả | Đề F08 yêu cầu thiết kế FSM điều khiển động cơ bước, hướng đến ứng dụng điều khiển trục quay của máy in 3D mini. |
+| Ngôn ngữ | Verilog |
+| Kích thước Tiny Tapeout | 1×1 tile |
+| Tần số clock khai báo | 0 Hz trong `info.yaml`; chưa có tần số mục tiêu được khai báo. |
+| Top module khai báo | `tt_um_eee703128_24100755` |
+| Source file khai báo | `project.v` |
+| RTL core | `f08_stepper_ctrl` |
+
 ## Thiết kế này làm gì
 
-<Viết 3–5 câu: bài toán là gì, mạch nhận vào cái gì, xuất ra cái gì, quan hệ chức năng.
-Người đọc chưa biết đề của em vẫn phải hiểu được.>
+RTL core điều khiển chuỗi kích cuộn cho động cơ bước. Mạch nhận `clk`, reset mức thấp `rst_n`, lệnh chạy `run`, chiều quay `dir`, chế độ `half_step` và bộ chia tốc độ `speed_div`; đầu ra gồm bốn tín hiệu cuộn dây `coil[3:0]` và trạng thái debug `state_dbg[2:0]`. Khi dừng, các đầu ra cuộn dây được đưa về 0.
 
 ## Cách hoạt động
 
-<Giải thích cấu trúc: mạch gồm những khối nào, nối với nhau ra sao.
-Đề tổ hợp: nêu bảng chân lý hoặc biểu thức logic.
-Đề tuần tự: nêu sơ đồ trạng thái, có bao nhiêu trạng thái, chuyển trạng thái theo điều kiện gì.>
+FSM dùng chung một thanh ghi trạng thái 3 bit: chế độ nửa bước quay qua 8 trạng thái, còn chế độ bước đủ quay qua 4 trạng thái. `dir` chọn chiều tăng hoặc giảm trạng thái; bộ đếm `speed_div` tạo khoảng cách giữa các bước. Bộ giải mã pha ánh xạ trạng thái thành mẫu điều khiển bốn cuộn dây.
 
 ## Cách kiểm thử
 
-<Liệt kê các ca kiểm thử đã chạy và vì sao chọn chúng.
-Nêu rõ ca nào kiểm biên, ca nào kiểm trường hợp bất thường.>
+Testbench kiểm tra reset, giới hạn trạng thái ở cả hai chế độ, quay vòng chuỗi bước, đảo chiều khi đang chạy và đầu ra cuộn dây khi dừng. Bản testbench dành cho GitHub Actions còn phát dòng `PASS` để workflow xác nhận kết quả mô phỏng.
 
 ## Ánh xạ chân
 
-| Chân | Tín hiệu | Ý nghĩa |
-|---|---|---|
-| `ui_in[7:0]` | | |
-| `uo_out[7:0]` | | |
-| `uio[7:0]` | | |
+Các trường pinout trong `info.yaml` hiện đều để trống; chưa có ánh xạ tín hiệu F08 sang chân Tiny Tapeout.
 
-## Giới hạn
+| Nhóm chân | Trạng thái khai báo |
+|---|---|
+| `ui[7:0]` | Chưa gán |
+| `uo[7:0]` | Chưa gán |
+| `uio[7:0]` | Chưa gán |
 
-<Nêu thẳng những gì thiết kế này KHÔNG làm được, những giả định đã dùng,
-và những kết luận KHÔNG được rút ra từ kết quả chạy công cụ.
+## Giới hạn và trạng thái tích hợp
 
-Đây không phải phần khiêm tốn xã giao — rubric tiêu chí 8 chấm thẳng vào mục này,
-và mục 5 quy định trừ điểm nếu viết vượt mức (tape-out, sign-off, sẵn sàng sản xuất).>
+- `info.yaml` khai báo top module `tt_um_eee703128_24100755`, nhưng `src/project.v` hiện vẫn là khung mẫu và chưa chứa module đó hoặc ánh xạ F08. Cần hoàn tất wrapper trước khi coi cấu hình Tiny Tapeout là tích hợp được.
+- Thiết kế là mạch tuần tự nhưng `clock_hz` đang bằng 0; cần khai báo tần số clock mục tiêu phù hợp trước khi dùng metadata cho build/sign-off.
+- Các kết quả mô phỏng chức năng không tự chứng minh thiết kế đã qua place-and-route, sign-off, chế tạo hoặc kiểm tra sau chế tạo.
