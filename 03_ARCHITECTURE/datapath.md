@@ -1,5 +1,10 @@
 # F08 · Đường dữ liệu (Datapath)
 
+> **Cập nhật:** mô phỏng RTL hiện PASS và kiểm tra chuỗi đã có trong
+> `05_VERIFICATION/testbench/f08_tb.sv`. Mục 4 phía dưới là phân tích lịch sử của module
+> phản ví dụ `f08_bad_direction_reset`, không phải số đo của RTL core hiện tại. Số liệu
+> hiện hành được tách theo giai đoạn tại `06_GDSII/physical_report.md`.
+
 ---
 
 ## 1. F08 có **hai** datapath nhỏ, tách biệt hoàn toàn
@@ -27,8 +32,10 @@ Khác F07 (gần như không có datapath), F08 có hai đường số học đ�
  └─────────────────────────────────────────────────────────────────────┘
 ```
 
-**Hai datapath chỉ giao nhau qua 1 bit `step_tick`.** Đây là một sự tách bạch sạch sẽ:
+**Hai datapath RTL chỉ giao nhau qua 1 bit `step_tick`.** Đây là một sự tách bạch sạch sẽ:
 A đếm *thời gian*, B đếm *vị trí*, và A chỉ nói với B một câu "đến giờ rồi".
+RTL có 11 thanh ghi trạng thái/bộ đếm; báo cáo tổng hợp ghi 15 FF, gồm thêm 4 FF
+đầu ra giải mã pha.
 
 Sự tách bạch này có hệ quả kiểm chứng: có thể kiểm B (chuỗi bước) **hoàn toàn độc lập** với
 A bằng cách đặt `speed_div = 0` (bước mỗi chu kỳ). Đó chính là cách mô hình chuẩn Python
@@ -39,7 +46,7 @@ làm — `next_state()` không có khái niệm thời gian.
 | Đường | Độ rộng | Từ | Đến | Bản chất |
 |---|---:|---|---|---|
 | `speed_div[7:0]` | 8 | cổng vào | bộ so sánh 8 bit | **Tham số thời gian** ⚠️ Charter mục 4 **không cấp chân** cho nó |
-| `div_count[7:0]` | 8 | FF | bộ tăng + bộ so sánh | **Datapath A** — chiếm **73 % số FF** |
+| `div_count[7:0]` | 8 | FF | bộ tăng + bộ so sánh | **Datapath A** — 8 FF trong 15 FF tổng hợp được báo cáo |
 | `step_tick` | 1 | tổ hợp | cho phép ghi `state` | **Cầu nối A → B** |
 | `dir`, `half_step`, `run` | 1 mỗi | cổng vào | next-state logic + bộ giải mã | **Điều khiển** — và `run`/`half_step` đi **thẳng ra `coil`** (Mealy) |
 | `state[2:0]` | 3 | FF | bộ tăng/giảm + bảng tra + cổng ra | ★ **Trạng thái vật lý duy nhất có ý nghĩa** |
@@ -55,8 +62,8 @@ cơ chạy sai tốc độ; mất `state` thì động cơ **mất vị trí**, 
 hở (`system_diagram.md` §1.1), mất vị trí là **mất vĩnh viễn**.
 
 ⟹ Thứ tự ưu tiên kiểm chứng phải phản ánh điều này: mọi invariant về `state` quan trọng hơn
-mọi invariant về `div_count`. Hiện gói có **0** assertion kiểm chuỗi `state`
-(`corner_cases.md` §1.2).
+mọi invariant về `div_count`. Testbench hiện kiểm chuỗi nửa bước tiến và bước đủ tiến; các
+trường hợp chuyển chế độ khi `state ∈ [4,7]` vẫn cần ca riêng.
 
 ## 3. Đồ thị phụ thuộc
 

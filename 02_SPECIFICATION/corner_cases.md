@@ -1,10 +1,20 @@
 # F08 · Ca biên và ca góc (Corner Cases)
 
-> ⚠️ **Testbench `f08_tb.sv` KHÔNG BIÊN DỊCH ĐƯỢC** (`iverilog_compile.log`: `syntax error`
-> tại dòng 32). Không có `simulation.log`. ⟹ **Không một ca nào dưới đây từng được chạy
-> trên RTL.** Cột "đã chạy?" của mọi ca RTL là ❌. Xem `05_VERIFICATION/known_issues.md`.
->
-> Bằng chứng hành vi duy nhất hiện có của F08 là **mô hình chuẩn Python** (7 ca PASS).
+> **Cập nhật sau khi vá:** testbench RTL hiện biên dịch và PASS. Các đoạn phân tích bên
+> dưới giữ lại chẩn đoán lịch sử trước khi vá; các câu khẳng định rằng RTL chưa
+> chạy hoặc mọi ca đều FAIL không còn là trạng thái hiện tại. Kết quả mới nhất ở
+> `05_VERIFICATION/test_matrix.csv` và `05_VERIFICATION/simulation.log`.
+
+## Trạng thái ca kiểm thử hiện tại
+
+| Ca | Bằng chứng RTL hiện tại |
+|---|---|
+| Nửa bước tiến đủ vòng, kiểm từng trạng thái | `testbench/f08_tb.sv`; PASS |
+| Bước đủ tiến đủ vòng, kiểm từng trạng thái | `testbench/f08_tb.sv`; PASS |
+| Đổi chiều và dừng/reset | `testbench/f08_tb.sv`; PASS |
+| Biên quay nghịch từ state 0 về state 7 | Ca tự xây dựng; PASS |
+| Biên bộ chia `speed_div=2` | Ca tự xây dựng; PASS |
+| Gate-level và post-layout/SDF | Chưa chạy; không có bằng chứng |
 
 ---
 

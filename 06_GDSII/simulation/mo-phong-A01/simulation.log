@@ -1,0 +1,2 @@
+PASS: F08 stepper controller checks completed
+tb/f08_tb.sv:68: $finish called at 356 (1s)

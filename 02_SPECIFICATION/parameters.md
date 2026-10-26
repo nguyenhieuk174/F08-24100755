@@ -25,8 +25,8 @@
 | File Liberty | `sky130_fd_sc_hd__tt_025C_1v80.lib` |
 | Góc PVT | **typical · 25 °C · 1,80 V** |
 | Nguồn Liberty | OpenROAD-flow-scripts · flow/platforms/sky130hd/lib/ |
-| PDK đích cho P&R | **sky130A** (chưa chạy) |
-| Flow P&R đích | **LibreLane / OpenROAD** (chưa chạy) |
+| PDK cho P&R | **sky130A** (đã chạy trong GitHub Actions) |
+| Flow P&R | **LibreLane / OpenROAD** (có archive; xem `06_GDSII/`) |
 
 > ⚠️ Mọi con số cell, diện tích, timing, công suất trong hồ sơ này gắn chặt với **đúng** tổ
 > hợp trên. Đổi bất kỳ thành phần nào thì số liệu đổi theo. Charter mục 6 yêu cầu nêu
@@ -38,17 +38,22 @@
 
 | Chỉ số | Giá trị | Nguồn |
 |---|---:|---|
-| Số cell sau tổng hợp | 101 | `06_GDSII/synthesis/synth_stat.txt` |
+| Standard-cell instances sau P&R | 148 | `06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json` |
+| Tổng instances (gồm filler/tap/repair) | 485 | như trên |
 | Flip-flop | 15 | như trên |
-| Diện tích | 835,8016 µm² | như trên |
-| Độ trễ đường tới hạn | 3,48 ns | `06_GDSII/sta/timing_report_max.txt` |
-| Tổng công suất (ước lượng) | 7.10e-05 W | `06_GDSII/power/power_report.txt` |
-| Tỷ lệ công suất tổ hợp | 12.2 % | như trên |
-| Tỷ lệ công suất tuần tự | 87.8 % | như trên |
+| Diện tích standard cell | 1362,56 µm² | như trên |
+| Diện tích core / die | 2499,9 / 4553,21 µm² | như trên |
+| Setup / hold worst slack | 1,71449 / 0,30258 ns | như trên |
+| Công suất tổng ước lượng | 1,82346e-04 W | như trên |
+| Route DRC errors | 0 | như trên |
+| Flow errors | 0 | như trên |
 
 ## 4. Cấu hình máy đọc được
 
-Xem `04_IMPLEMENTATION/scripts/config.json`.
+Xem `04_IMPLEMENTATION/scripts/config_librelane.json`; archive log nằm trong `06_GDSII/runs/`.
+
+README nguồn đánh dấu P&R là chưa chạy trong bảng trạng thái; hiện có archive
+LibreLane riêng. Xem `07_TRACEABILITY/limitations.md` để không gộp hai trạng thái.
 
 ---
 

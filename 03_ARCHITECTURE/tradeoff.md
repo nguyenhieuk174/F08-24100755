@@ -1,5 +1,10 @@
 # F08 · Phân tích đánh đổi (Trade-off)
 
+> **Cập nhật đo lường:** kết quả hiện tại thuộc `f08_stepper_ctrl`, không phải
+> `f08_bad_direction_reset`. README nguồn nêu 101 cell / 15 FF / 835,8016 µm²;
+> archive LibreLane nêu 148 standard-cell instances / 15 FF. Xem
+> `06_GDSII/physical_report.md` để phân biệt giai đoạn và giới hạn.
+
 ---
 
 ## 1. Ràng buộc phạm vi phải đọc trước
@@ -25,19 +30,17 @@ của thầy. Mọi khuyến nghị ở đây là **đề xuất chờ duyệt**
 
 | Chỉ số | **A** `f08_stepper_ctrl` | **B** `f08_bad_dual_state_register` | `f08_bad_direction_reset` (**được đo**) |
 |---|---:|---:|---:|
-| Cell | ⬜ **chưa đo** | ⬜ chưa đo | **22** |
-| Flip-flop | ⬜ chưa đo — *suy từ mã: 11* | ⬜ — *suy từ mã: 5 + chia tần* | **4** |
-| Diện tích | ⬜ | ⬜ | **190,1824 µm²** |
-| Đường tới hạn | ⬜ | ⬜ | `dir → _31_ → _33_ → _34_ → _35_ → _39_` |
-| Data arrival | ⬜ | ⬜ | **1,68 ns** (gồm 1,00 ns input delay giả định) |
-| Slack | ⬜ | ⬜ | **8,25 ns (MET)**, WNS/TNS = 0,00/0,00 |
-| Công suất | ⬜ | ⬜ | **2,19e-05 W** — tuần tự 82,7 %, tổ hợp 17,3 % |
+| Cell | **101** (README nguồn) | ⬜ chưa đo | **22** (số liệu lịch sử) |
+| Flip-flop | **15** | ⬜ chưa đo | **4** (số liệu lịch sử) |
+| Diện tích | **835,8016 µm²** (README nguồn) | ⬜ | **190,1824 µm²** (số liệu lịch sử) |
+| Đường tới hạn | `speed_div[2]` → `_172_` (README nguồn) | ⬜ | `dir → _31_ → _33_ → _34_ → _35_ → _39_` (lịch sử) |
+| Độ trễ / slack | **3,48 ns** (README nguồn) | ⬜ | **1,68 ns / 8,25 ns** (số liệu lịch sử) |
+| Công suất | **7.10e-05 W** (README nguồn) | ⬜ | **2,19e-05 W** (số liệu lịch sử) |
 | Đổi chiều đúng? | ✅ | ✅ | ❌ **mất tới 7 bước** |
 | Có `coil`, `run`, `half_step`? | ✅ | ❌ | ❌ |
 
-> 👉 **Cột duy nhất có số là cột của một mạch SAI, và nó cũng là mạch thiếu ba trên năm
-> nhóm cổng mà Charter mục 4 yêu cầu.** Không có một con số nào trong hồ sơ F08 thuộc về
-> bộ điều khiển động cơ bước thật.
+> Số liệu A thuộc thiết kế hiện tại theo README nguồn. Archive LibreLane sau P&R có
+> metrics riêng tại `06_GDSII/physical_report.md`; cột phản ví dụ chỉ có ý nghĩa lịch sử.
 
 ### 2.2 Cái bẫy 4 flip-flop
 
@@ -46,12 +49,12 @@ Charter mục 10: *"Dấu hiệu làm đúng: 3 ô nhớ vị trí (8 trạng th
 
 | | |
 |---|---|
-| Đo được | **4 FF** |
+| Đo được của thiết kế hiện tại | **15 FF** |
 | Dải Charter | 4–6 |
 | Kết luận vội | "✅ khớp — làm đúng" |
-| Sự thật | 4 FF đó = `state[2:0]` + `dir_d` của **phản ví dụ** |
-| `f08_stepper_ctrl` thật sự cần | 3 (`state`) + 8 (`div_count`) = **11 FF** — **ngoài** dải Charter |
-| Vì sao Charter dự đoán thiếu | Charter **không tính bộ chia tần** `speed_div` — mà bộ đó chiếm **73 %** số FF |
+| Sự thật | 4 FF trong phép đo cũ thuộc về `state[2:0]` + `dir_d` của **phản ví dụ** |
+| `f08_stepper_ctrl` đo được | **15 FF**: 3 `state` + 8 `div_count` + 4 bit đầu ra giải mã pha |
+| Vì sao vượt dự đoán | Bộ chia tần và ánh xạ đầu ra pha làm tăng tổng FF so với ước lượng Charter |
 
 > 📌 **Một con số khớp dự đoán mà vẫn sai thì nguy hiểm hơn một con số lệch rõ ràng** — nó
 > không kích hoạt nghi ngờ. Quy tắc rút ra: **kiểm danh tính của cái được đo (top module
@@ -86,18 +89,17 @@ A có lỗi nhỏ hơn và **có chặn trên** (≤3 bước); B có lỗi **kh
 | Cổng bảo vệ `coil = 1001` khi `state > 3` | Để `phase_decode` rơi vào `default: 0000` | ✅ Giữ mô-men, tránh ngắt dòng đột ngột. ⚠️ Tác dụng phụ: vi phạm INV-5 khi `run = 0` (`control.md` §3). |
 | `div_count` so với **biến** `speed_div` | Bộ đếm **giảm** nạp `speed_div`, so với 0 | ❌ So hai biến 8 bit **đắt**. ✅ So với 0 chỉ cần một cổng NOR 8 đầu vào. Đây là tối ưu **rõ ràng** và chưa được dùng. |
 | Dùng `>=` chứ không `==` | `div_count == speed_div - 1` | ✅ An toàn khi `speed_div` giảm giữa chừng; `==` sẽ làm bộ đếm chạy tự do. |
-| `SPEED_DIV_W = 8` cố định | Tham số nhỏ hơn, hoặc `speed_div` là hằng | ❌ 8 FF là **73 %** số FF. Nếu ứng dụng chỉ cần chia tới 16, `SPEED_DIV_W = 4` tiết kiệm **4 FF**. |
-| `===` ở dòng 85–86 | Bỏ hẳn, hoặc đưa vào `` `ifdef SIMULATION `` | ❌ Không tổng hợp được theo nghĩa thông thường; là mã chết. Nên dọn. `fsm.md` §6.3. |
+| `SPEED_DIV_W = 8` cố định | Tham số nhỏ hơn, hoặc `speed_div` là hằng | ❌ Bộ đếm chiếm 8 FF trong 15 FF tổng hợp. Nếu ứng dụng chỉ cần chia tới 16, `SPEED_DIV_W = 4` có thể tiết kiệm **4 FF**. |
+| Nhánh `===` ở bản gốc | Đã bỏ trong patch P-3 | ✅ Không còn trong RTL làm việc; chi tiết lịch sử ở `08_ORIGINAL_SOURCE/PATCHLOG.md`. |
 
-## 4. Bốn việc cần đo để biến §2–§3 từ giả thuyết thành kết luận
+## 4. Việc còn cần đo để so sánh kiến trúc
 
 | # | Việc | Lệnh | Trả lời được câu nào |
 |---|---|---|---|
-| **0** | ⚠️ **Vá lỗi cú pháp testbench, chạy được mô phỏng** | `known_issues.md` §5 | **Điều kiện tiên quyết** — không có bước này thì mọi bước sau vô nghĩa |
-| 1 | Tổng hợp **đúng** `f08_stepper_ctrl` | sửa `synth.ys` dòng 5 → `hierarchy -check -top f08_stepper_ctrl`, chạy `02_run_synth.sh` | Toàn bộ cột **A** ở §2.1; Charter mục 2 câu 3 |
-| 2 | Tổng hợp `f08_bad_dual_state_register` | như trên với top khác | Cột **B**; **Charter mục 9** phần so mã hoá |
-| 3 | Chạy lại với `SPEED_DIV_W` = 4 và 8 | thêm `chparam -set SPEED_DIV_W 4` | Tách chi phí bộ chia tần khỏi chi phí FSM |
-| 4 | Thử `phase_decode` viết bằng biểu thức tổ hợp thay vì `case` | sửa bản sao RTL, so `synth_stat.txt` | **Charter mục 9** phần "bảng tra hay logic tổ hợp rẻ hơn" |
+| 1 | Tổng hợp biến thể hai thanh ghi với cùng giao diện | Tạo bản so sánh giữ nguyên bộ chia/đầu ra, chỉ thay cách lưu state | So sánh công bằng A/B |
+| 2 | Tổng hợp biến thể giải mã bằng logic tổ hợp | Giữ nguyên các cổng và ràng buộc | Charter mục 9: chi phí giải mã |
+| 3 | So sánh ROM/macro nếu thư viện có hỗ trợ | Cùng PDK, corner, constraints | Đối chiếu với logic tổ hợp |
+| 4 | Tổng hợp biến thể one-hot | Cùng giao diện và chức năng | Định lượng đánh đổi FF/diện tích/timing |
 
 > ⚠️ Lưu ý cho việc 2: `f08_bad_dual_state_register` **không có** `coil`, `run`, `speed_div`.
 > So trực tiếp với `f08_stepper_ctrl` sẽ **không công bằng** — cùng cái bẫy đã gặp ở F07
@@ -120,26 +122,24 @@ Không dùng `typedef enum` — có lý do: trạng thái ở F08 là một **co
 đặc tả**, không phải chi tiết hiện thực; Yosys **không được phép** tái mã hoá.
 Xem `fsm.md` §5.1.
 
-### 5.2 Đối chiếu số flip-flop — ⬜ **CHƯA ĐO**
+### 5.2 Đối chiếu số flip-flop — **ĐÃ ĐO**
 
 | Nguồn | Số FF |
 |---|---:|
 | Charter mục 10 dự đoán | 4–6 |
-| **Đo được** (nhưng của **phản ví dụ**) | **4** |
-| `f08_stepper_ctrl` suy từ mã | 3 + 8 = **11** |
-| Trong đó: FSM vị trí | **3** (27 %) |
-| Trong đó: bộ chia tần | **8** (73 %) |
+| Số FF đo được của F08 | **15** |
+| Trong đó: FSM vị trí | **3** |
+| Trong đó: bộ chia tần | **8** |
+| Trong đó: đầu ra giải mã pha | **4** |
 
-**Nhận xét sẽ phải kiểm bằng số:** phần "thông minh" của F08 chỉ tốn **3 FF**; phần đếm
-thời gian tốn **8**. Charter dự đoán sai dải vì không tính bộ chia tần — và đó chính là
-điểm đáng nói nhất khi trả lời câu này.
+**Nhận xét:** vị trí dùng 3 bit và bộ chia tần dùng 8 bit; phép tổng hợp báo 15 FF do
+còn 4 FF đầu ra giải mã pha. So sánh các kiến trúc khác cần đo bằng cùng cấu hình.
 
-### 5.3 Bảng tra hay logic tổ hợp rẻ hơn — ⬜ **CHƯA ĐO**, nhưng phân tích được
+### 5.3 Bảng tra hay logic tổ hợp rẻ hơn — **chưa so sánh biến thể**
 
-Trước hết phải làm rõ một hiểu nhầm: **trong RTL hiện tại KHÔNG có "bảng tra" theo nghĩa
-phần cứng.** Hàm `phase_decode` viết bằng `case`, nhưng Yosys dựng nó thành **mạng cổng tổ
-hợp**, không thành ROM. `synth_stat.txt` của phản ví dụ ghi `Number of memories: 0` —
-và với `f08_stepper_ctrl` cũng sẽ như vậy.
+Hàm `phase_decode` được mô tả bằng `case`. Kết quả Yosys hiện báo tổng cộng 15 FF; hồ sơ
+sự cố ghi nhận 4 bit đầu ra bảng pha được ánh xạ thành FF. Chưa có phép đo biến thể ROM
+macro hoặc logic tổ hợp viết lại trên cùng cấu hình.
 
 Vậy câu hỏi thật sự là: **ROM thật (macro) hay logic tổ hợp?**
 
@@ -149,15 +149,15 @@ Vậy câu hỏi thật sự là: **ROM thật (macro) hay logic tổ hợp?**
 | Hiện thực | Mỗi bit `coil` là một hàm 4 biến (`state[2:0]`, `half_step`) ⟹ 4 hàm nhỏ, `abc` tối giản rất sâu | Một macro 32 bit + logic địa chỉ |
 | Chi phí | Vài cổng mỗi bit | **Một macro** — overhead cố định lớn hơn nhiều so với 32 bit dữ liệu |
 | Đổi bảng sau khi tape-out | ❌ không | ❌ cũng không (ROM cứng) |
-| Kết luận dự kiến | ✅ **Logic tổ hợp thắng rõ** ở quy mô này | Chỉ đáng khi bảng **hàng trăm mục** |
+| Kết luận hiện tại | Chưa có kết luận đo được; đây là giả thuyết cần kiểm bằng cùng PDK/toolchain | Chỉ đánh giá sau khi đo macro cụ thể |
 
 **Một cấu trúc thứ ba đáng bàn** — thanh ghi dịch one-hot (kiến trúc C ở §2): giải mã pha
 gần như **miễn phí** (mỗi bit one-hot ánh xạ thẳng sang mẫu), đổi lại **8 FF** thay vì 3.
 Đây là đánh đổi FF ↔ logic tổ hợp thuần tuý, và là phương án duy nhất trong bảng có thể
 thắng A về **timing** (không có bộ tăng, chỉ có phép dịch).
 
-⟹ **Câu trả lời đầy đủ cho Charter mục 9 cần ba con số:** diện tích của A, của A-với-ROM,
-và của C. Hiện có **không con số nào**. Cách lấy: việc 1 và việc 4 ở §4.
+⟹ Có số liệu cho thiết kế A, nhưng chưa có số đo công bằng cho A-với-ROM và C. Chỉ kết
+luận phương án nào rẻ hơn sau khi tổng hợp chúng với cùng toolchain và cấu hình.
 
 ## 6. Những đánh đổi **KHÔNG được phép** trong đề này
 

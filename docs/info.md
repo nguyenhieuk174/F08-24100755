@@ -26,18 +26,27 @@ FSM dùng chung một thanh ghi trạng thái 3 bit: chế độ nửa bước q
 
 Testbench kiểm tra reset, giới hạn trạng thái ở cả hai chế độ, quay vòng chuỗi bước, đảo chiều khi đang chạy và đầu ra cuộn dây khi dừng. Bản testbench dành cho GitHub Actions còn phát dòng `PASS` để workflow xác nhận kết quả mô phỏng.
 
+## Kết quả RTL-to-GDS
+
+Archive LibreLane/OpenROAD cho RTL core `f08_stepper_ctrl` có GDS và kết quả P&R, DRC, LVS. Metrics ghi nhận 148 standard-cell instances, 15 flip-flop, 0 route DRC errors và không có khác biệt LVS. Run ID và log nằm trong [`06_GDSII/`](../06_GDSII/).
+
 ## Ánh xạ chân
 
-Các trường pinout trong `info.yaml` hiện đều để trống; chưa có ánh xạ tín hiệu F08 sang chân Tiny Tapeout.
+`tt_um_eee703128_24100755` dùng cấu hình chân sau:
 
-| Nhóm chân | Trạng thái khai báo |
+| Nhóm chân | Ánh xạ |
 |---|---|
-| `ui[7:0]` | Chưa gán |
-| `uo[7:0]` | Chưa gán |
-| `uio[7:0]` | Chưa gán |
+| `ui[7:0]` | `speed_div[7:0]` |
+| `uo[0:3]` | `coil[0:3]` |
+| `uo[4:6]` | `state_dbg[0:2]` |
+| `uo[7]` | không dùng |
+| `uio[0]` | `dir` |
+| `uio[1]` | `half_step` |
+| `uio[2]` | `run` |
+| `uio[3:7]` | không dùng |
 
 ## Giới hạn và trạng thái tích hợp
 
-- `info.yaml` khai báo top module `tt_um_eee703128_24100755`, nhưng `src/project.v` hiện vẫn là khung mẫu và chưa chứa module đó hoặc ánh xạ F08. Cần hoàn tất wrapper trước khi coi cấu hình Tiny Tapeout là tích hợp được.
-- Thiết kế là mạch tuần tự nhưng `clock_hz` đang bằng 0; cần khai báo tần số clock mục tiêu phù hợp trước khi dùng metadata cho build/sign-off.
-- Các kết quả mô phỏng chức năng không tự chứng minh thiết kế đã qua place-and-route, sign-off, chế tạo hoặc kiểm tra sau chế tạo.
+- `src/project.v` có wrapper `tt_um_eee703128_24100755` và ánh xạ các chân TinyTapeout sang RTL core; `clock_hz` vẫn để 0 vì chưa có tần số mục tiêu được chốt. Giá trị này không được thay bằng giả định 10 ns trong SDC.
+- Tên top module trong `info.yaml` khớp với wrapper trong `src/project.v`; cần xác nhận quy ước `clock_hz` của luồng tích hợp trước khi dùng metadata cho build.
+- Kết quả P&R/DRC/LVS là bằng chứng flow cho RTL core, không phải ASIC sign-off, tape-out, chế tạo hay kiểm tra sau chế tạo; gate-level/SDF simulation cũng chưa chạy.

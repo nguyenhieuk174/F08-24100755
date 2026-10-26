@@ -16,7 +16,7 @@ Tám thành phần bắt buộc của hồ sơ: bối cảnh ứng dụng · sơ
 | 2 | Sơ đồ khối hệ thống | `03_ARCHITECTURE/system_diagram.md` |
 | 3 | Phân loại analog / digital / mixed | `01_REQUIREMENT/application.md` §3 |
 | 4 | Bảng giao diện của chính khối này | `02_SPECIFICATION/interface.md` §2 |
-| 5 | Một artifact số có chú thích | `05_VERIFICATION/waveforms/` · `06_GDSII/synthesis/` |
+| 5 | Một artifact số có chú thích | `05_VERIFICATION/waveforms/` · `06_GDSII/` |
 | 6 | Sơ đồ vòng đời | `03_ARCHITECTURE/system_diagram.md` §cuối |
 | 7 | RTM-lite | `07_TRACEABILITY/RTM.csv` |
 | 8 | Kết luận và giới hạn | `07_TRACEABILITY/limitations.md` |
@@ -25,9 +25,9 @@ Tám thành phần bắt buộc của hồ sơ: bối cảnh ứng dụng · sơ
 
 Tự nguyện, không phải điều kiện đạt: chạy chuỗi công cụ LibreLane với PDK sky130A trên bộ cài đặt đã xác minh, rồi đọc báo cáo do chính lần chạy đó sinh ra.
 
-Trạng thái trong gói này: script đã chuẩn bị sẵn tại
-`04_IMPLEMENTATION/scripts/04_run_librelane.sh`. Kết quả thật **chưa chạy** —
-xem `06_GDSII/physical_report.md`.
+Trạng thái: archive có kết quả LibreLane/OpenROAD, GDS, P&R, DRC/LVS và metrics.
+Xem [`../06_GDSII/physical_report.md`](../06_GDSII/physical_report.md). Physical design
+được chạy tự động bằng flow, không phải thiết kế vật lý thủ công; ASIC sign-off vẫn ngoài phạm vi.
 
 ## 3. NGOÀI PHẠM VI
 

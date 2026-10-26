@@ -14,8 +14,9 @@
 ```
 
 **Top module:** `f08_stepper_ctrl`
-**Bằng chứng chọn top:** suy tu danh sach module dinh nghia trong src/
-**Các module khác trong src/:** `f08_bad_direction_reset`, `f08_bad_dual_state_register`, `f08_stepper_ctrl_wrapper`
+**Bằng chứng chọn top:** `hierarchy -check -top f08_stepper_ctrl` trong script tổng hợp; testbench instantiates cùng module.
+**Wrapper TinyTapeout:** `tt_um_eee703128_24100755` trong `src/project.v`.
+**Module đối chiếu:** `f08_bad_direction_reset`, `f08_bad_dual_state_register`.
 
 ## 2. Thứ tự chạy
 
@@ -29,22 +30,27 @@ bash 04_IMPLEMENTATION/scripts/04_run_librelane.sh          # ⬜ cần PDK sky1
 
 Mỗi script tự kiểm tra công cụ và **dừng có thông báo** nếu thiếu, thay vì tạo kết quả giả.
 
-## 3. Sửa nguồn tối thiểu đã áp dụng
+## 3. Sửa đổi đã áp dụng
 
-Nguồn gốc lấy từ `F08_FINAL_MENTOR_PACKAGE_v1_0`. Để biên dịch được bằng Icarus Verilog 12.0, các sửa đổi
-sau đã được áp dụng **trên bản sao** trong thư mục này. Nguyên tắc: chỉ sửa lỗi làm trình
-biên dịch từ chối, **không** đổi hành vi thiết kế.
-_Không phải sửa gì — nguồn biên dịch được nguyên trạng._
+Nguồn gốc được giữ nguyên tại `08_ORIGINAL_SOURCE/`. Các chỉnh sửa trên bản làm việc
+được ghi tại [`08_ORIGINAL_SOURCE/PATCHLOG.md`](../08_ORIGINAL_SOURCE/PATCHLOG.md):
+
+- Sửa vị trí khai báo biến trong testbench để Icarus biên dịch được.
+- Đặt top tổng hợp là `f08_stepper_ctrl`, cùng top với testbench.
+- Bỏ nhánh so sánh `===` không tổng hợp đúng.
+- Bổ sung kiểm chuỗi tiến/lùi và các ca biên quay nghịch/bộ chia.
+
+Testbench hiện chạy PASS; bằng chứng lần chạy mới nhất ở `05_VERIFICATION/simulation.log`.
 
 ## 4. Môi trường đã dùng để sinh bằng chứng
 
 | Công cụ | Phiên bản |
 |---|---|
-| Mô phỏng | Icarus Verilog 12.0 (stable) |
+| Mô phỏng trong hồ sơ | Icarus Verilog 12.0 (stable); lần chạy lại cục bộ dùng 13.0 |
 | Tổng hợp | Yosys 0.33 (git sha1 2584903a060) |
 | STA + công suất | OpenSTA 3.1.0 |
 | Liberty | `sky130_fd_sc_hd__tt_025C_1v80.lib` (typical · 25 °C · 1,80 V) |
-| LibreLane + sky130A | ⬜ chưa chạy |
+| LibreLane + sky130A | Archive run có GDS, DRC/LVS và metrics trong `../06_GDSII/` |
 
 ## 5. Cài đặt công cụ trên WSL Ubuntu
 

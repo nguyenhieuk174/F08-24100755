@@ -37,10 +37,25 @@ module f08_tb;
         assert(state_dbg == ((s_before==0)?7:s_before-1))
             else $fatal(1,"direction reversal did not move to predecessor");
 
-        // Full-step uses only states 0..3.
-        half_step=0;
-        repeat(8) tick();
-        assert(state_dbg <= 3'd3) else $fatal(1,"invalid full-step state");
+        // Full-step reverse traverses 0, 3, 2, 1 and wraps to 0.
+        rst_n=0; run=0; tick();
+        rst_n=1; half_step=0; dir=0; run=1;
+        for (int k = 0; k < 4; k++) begin
+            assert(state_dbg == ((4-k) % 4))
+                else $fatal(1,"full-step reverse sequence failed at k=%0d", k);
+            tick();
+        end
+        assert(state_dbg == 3'd0) else $fatal(1,"full-step reverse did not wrap");
+
+        // Half-step reverse traverses 0, 7, ..., 1 and wraps to 0.
+        rst_n=0; run=0; tick();
+        rst_n=1; half_step=1; dir=0; run=1;
+        for (int k = 0; k < 8; k++) begin
+            assert(state_dbg == ((8-k) % 8))
+                else $fatal(1,"half-step reverse sequence failed at k=%0d", k);
+            tick();
+        end
+        assert(state_dbg == 3'd0) else $fatal(1,"half-step reverse did not wrap");
 
         // Stop drives coils inactive in the scaffold.
         run=0;
@@ -72,6 +87,29 @@ module f08_tb;
             tick();
         end
         assert(state_dbg == 3'd0) else $fatal(1,"buoc du khong khep vong ve 0");
+
+        // Custom boundary: reverse from state 0 wraps to state 7.
+        rst_n=0; run=0; tick();
+        rst_n=1; half_step=1; dir=0; speed_div=8'd0; run=1;
+        tick();
+        assert(state_dbg == 3'd7)
+            else $fatal(1,"reverse wrap from state 0 failed");
+
+        // Custom divider boundary: speed_div=2 advances once every two clocks.
+        rst_n=0; run=0; tick();
+        rst_n=1; half_step=1; dir=1; speed_div=8'd2; run=1;
+        tick();
+        assert(state_dbg == 3'd0)
+            else $fatal(1,"speed_div=2 advanced too early");
+        tick();
+        assert(state_dbg == 3'd1)
+            else $fatal(1,"speed_div=2 did not advance on second clock");
+        tick();
+        assert(state_dbg == 3'd1)
+            else $fatal(1,"speed_div=2 advanced too early on next interval");
+        tick();
+        assert(state_dbg == 3'd2)
+            else $fatal(1,"speed_div=2 did not advance on next interval");
         run=0;
 
         $display("F08 TB completed");

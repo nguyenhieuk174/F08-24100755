@@ -11,7 +11,7 @@
 
 
 
-**Ngày chạy:** 2026-09-24 · **Phiên bản:** v1.0
+**Run GitHub Actions:** `RUN_2026-10-26_04-13-31` · **Phiên bản báo cáo:** v1.1
 
 ---
 
@@ -22,20 +22,22 @@
 | Hạng mục | Giá trị |
 |---|---|
 | Hệ điều hành | Ubuntu 22.04 LTS (x86-64) |
-| Công cụ mô phỏng | **Icarus Verilog 12.0 (stable)** (cờ `-g2012`) |
+| Công cụ mô phỏng | Hồ sơ nguồn ghi Icarus 12.0; lần chạy lại testbench dùng Icarus 13.0 (`-g2012`) |
 | Top module | `f08_stepper_ctrl` |
-| RTL | `04_IMPLEMENTATION/rtl/` |
+| RTL core của hồ sơ | `04_IMPLEMENTATION/rtl/f08_stepper_ctrl.sv` |
+| Wrapper tích hợp | `src/project.v` |
 | Mô hình chuẩn | `05_VERIFICATION/golden_model/` |
-| Testbench | `05_VERIFICATION/testbench/` |
-| Lệnh chạy | `bash 04_IMPLEMENTATION/scripts/01_run_sim.sh` |
-| Nguồn gốc gói | `F08_FINAL_MENTOR_PACKAGE_v1_0` |
+| Testbench hiện tại | `05_VERIFICATION/testbench/f08_tb.sv` |
+| Lệnh chạy testbench hiện tại | `bash 04_IMPLEMENTATION/scripts/01_run_sim.sh` |
+| Physical flow | LibreLane / OpenROAD, `sky130A`, `sky130_fd_sc_hd` |
+| Artifact archive | `06_GDSII/` |
 
 ## 2. Kết quả tổng hợp
 
 | Lớp | Nội dung | Kết quả |
 |---|---|---|
 | L0 | Mô hình chuẩn Python | ✅ **PASS** |
-| L2 | Mô phỏng RTL | ✅ PASS — testbench chạy hết, không có assertion nào vi phạm |
+| L2 | Mô phỏng RTL | ✅ PASS — [`simulation.log`](simulation.log) |
 | L3 | Kiểm cấu trúc — số flip-flop | ✅ đo được **15** FF, phân loại Charter là **Tuần tự** |
 | L4 | Mô phỏng gate-level | ⬜ chưa chạy |
 | L5 | Mô phỏng post-layout (SDF) | ⬜ chưa chạy |
@@ -44,20 +46,24 @@
 
 ```
 F08 TB completed
-05_VERIFICATION/testbench/f08_tb.sv:78: $finish called at 356 (1s)
+05_VERIFICATION/testbench/f08_tb.sv:116: $finish called at 486 (1s)
 ```
 
-Log đầy đủ: [`simulation.log`](simulation.log)
+Log đầy đủ của lần chạy lại hiện tại: [`simulation.log`](simulation.log).
 
 ## 4. Kiểm cấu trúc — số flip-flop
 
-Trích `../06_GDSII/synthesis/synth_stat.txt` (Yosys 0.33 (git sha1 2584903a060) + `sky130_fd_sc_hd`):
+Trích metrics do LibreLane sinh: [`metrics.json`](../06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json).
 
 | Chỉ số | Giá trị |
 |---|---:|
-| Tổng số cell | **101** |
+| Standard-cell instances | **148** |
+| Tổng instances (kể cả filler, tap và repair) | **485** |
 | Cell tuần tự (flip-flop / latch) | **15** |
-| Diện tích | 835,8016 µm² |
+| Diện tích standard cell | **1362,56 µm²** |
+| Diện tích core / die | **2499,9 / 4553,21 µm²** |
+| Setup / hold worst slack | **1,71449 / 0,30258 ns** |
+| Power total estimate | **1,82346e-04 W** |
 
 
 ✅ Đúng phân loại **Tuần tự** của Charter — có ô nhớ đồng bộ theo clock.
@@ -73,8 +79,8 @@ Trích `../06_GDSII/synthesis/synth_stat.txt` (Yosys 0.33 (git sha1 2584903a060)
 Phần trả lời dựa trên số liệu đo được nằm ở:
 
 - Câu về **giao diện / tín hiệu**: `02_SPECIFICATION/interface.md`
-- Câu về **thời gian / tần số**: `06_GDSII/sta/` và `06_GDSII/physical_report.md`
-- Câu về **diện tích / tài nguyên**: `06_GDSII/physical_report.md` §2
+- Câu về **thời gian / tần số**: `02_SPECIFICATION/timing.md` và `06_GDSII/physical_report.md`
+- Câu về **diện tích / tài nguyên**: `06_GDSII/physical_report.md`
 - Phân tích bản chất và cơ chế: `implementation-notes_F08.md`
 
 ## 6. Những gì báo cáo này **chưa** chứng minh
@@ -83,10 +89,15 @@ Phần trả lời dựa trên số liệu đo được nằm ở:
 |---|---|
 | Kiến trúc bên trong đúng như mô tả | Kiểm chứng chức năng mù về cấu trúc — phải đọc RTL và netlist |
 | Độ trễ lan truyền đạt yêu cầu | Mô phỏng hành vi là zero-delay |
-| Mạch đúng sau place & route | Chưa chạy P&R |
+| Hành vi của netlist sau place & route | Chưa chạy gate-level/SDF simulation |
+| Kết quả physical có phải ASIC sign-off? | Không; DRC/LVS clear trong archive không đồng nghĩa sign-off. Xem `07_TRACEABILITY/limitations.md`. |
 | Không có glitch gây hại | Mô phỏng zero-delay không sinh glitch |
 
 Danh sách đầy đủ: `07_TRACEABILITY/limitations.md`.
+
+Archive physical có kết quả DRC/LVS clear; đây là kết quả khác lớp với L4/L5 và
+không thay thế mô phỏng gate-level hoặc SDF. README nguồn vẫn đánh dấu P&R chưa
+chạy; điểm không khớp với archive được ghi tại `07_TRACEABILITY/limitations.md`.
 
 ---
 

@@ -4,16 +4,15 @@
 >
 > ## ⚠️ CẢNH BÁO BẮT BUỘC ĐỌC TRƯỚC
 >
-> **Mọi dạng sóng trong file này là SUY LUẬN TỪ MÃ NGUỒN, không phải waveform thu được.**
+> **Các dạng sóng minh họa trong file này là suy luận từ mã nguồn, không phải VCD được thu.**
 >
-> Testbench `f08_tb.sv` **không biên dịch được** (`iverilog_compile.log`: `syntax error`
-> tại dòng 32). Không có `simulation.log`, không có VCD, **không một chu kỳ nào từng được
-> mô phỏng**. Xem `05_VERIFICATION/known_issues.md`.
+> Testbench hiện đã biên dịch và PASS; log ở `05_VERIFICATION/simulation.log`. Thư mục
+> waveform chưa có VCD nên các hình dưới đây vẫn là kỳ vọng, không phải artifact waveform.
+> Xem `05_VERIFICATION/known_issues.md` để biết chẩn đoán lịch sử.
 >
-> Khác với F06 và F07 — nơi dạng sóng được **đối chiếu** với mốc thời gian thật trong
-> `simulation.log` (`t=196` và `t=156`) — ở F08 **không có mốc nào để đối chiếu**. Các bảng
-> dưới đây là **dự đoán có cơ sở**, dùng để (a) hiểu cơ chế và (b) làm **kỳ vọng** cho lần
-> chạy sau khi vá. **Không được dùng làm bằng chứng.**
+> Các bảng dưới đây là **dự đoán có cơ sở** về giá trị theo từng cạnh và có thể đối chiếu
+> với log mô phỏng. Chúng không phải waveform/VCD thu được; log PASS xác nhận assertion,
+> không xác nhận toàn bộ dạng sóng minh họa.
 >
 > Ngoài ra, ngay cả khi chạy được thì đó vẫn là mô phỏng **hành vi (zero-delay)**: không có
 > `t_ckq`, không có độ trễ cổng, không có glitch — mà `coil` là đầu ra **Mealy** nên nó
@@ -227,15 +226,15 @@ thấy, phải mô phỏng với độ phân giải nhỏ hơn chu kỳ clock, v
 
 | Không chứng minh | Vì sao |
 |---|---|
-| **Bất cứ điều gì về hành vi thật** | ❌ **Mô phỏng chưa bao giờ chạy** (`COMPILE_FAIL`). Toàn bộ file này là dự đoán. |
-| Chuỗi bước đủ **tiến** | Không có ca nào — kể cả sau khi vá (`corner_cases.md` §1.1) |
-| Vùng tàn dư `s ∈ [4,7]` ở chế độ bước đủ | Không có ca nào; cổng bảo vệ dòng 91 là mã chưa chạy |
-| Bộ chia tần với `speed_div ≠ 1` | TB cố định `speed_div = 1` |
-| Không nhảy bước (INV-4) | Assertion hiện có chỉ kiểm **dải**, không kiểm **chuỗi** |
-| Đổi chiều đúng ở vị trí ≠ 1 | TB chỉ đổi chiều tại `s = 1`, nơi "tiền nhiệm" và "gốc" **trùng nhau** (§1.2) |
+| Hành vi RTL | Mô phỏng PASS; log ở `05_VERIFICATION/simulation.log` |
+| Chuỗi bước đủ / nửa bước tiến | Được kiểm từng trạng thái trong testbench |
+| Vùng tàn dư `s ∈ [4,7]` khi đổi sang bước đủ | Chưa có ca riêng; vẫn là khoảng trống |
+| Bộ chia tần với `speed_div ≠ 1` | `speed_div=2` đã kiểm; giá trị lớn hơn chưa bao phủ |
+| Không nhảy bước (INV-4) | Chuỗi tiến và lùi hiện được so từng trạng thái |
+| Đổi chiều tại biên | Wrap lùi từ state 0 về state 7 đã kiểm; đảo chiều ở các vị trí khác chưa bao phủ hết |
 | Glitch trên `coil` | Zero-delay không sinh glitch; cần L5 + SDF |
-| Netlist tương đương RTL | Netlist hiện có là của **module khác** |
-| Tần số hoạt động | Chu kỳ 10 ns là giả định; chưa P&R; một góc PVT |
+| Netlist tương đương RTL | Chưa chạy gate-level; archive có netlist nhưng chưa có log so sánh |
+| Tần số hoạt động | Chu kỳ 10 ns là giả định, không phải clock target; cần timing budget của hệ thống |
 
 ---
 

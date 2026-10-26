@@ -93,7 +93,7 @@ end
 | Nó chống được gì? | Mẫu pha vô nghĩa, và mất mô-men đột ngột. |
 | Nó **không** chống được gì? | **Mất bước.** Ép `coil = 1001` khi rotor đang ở vị trí ứng với `s=5` là một bước nhảy vật lý. Cổng bảo vệ làm hậu quả **an toàn về điện**, không **đúng về vị trí**. |
 | ⚠️ Tác dụng phụ | Điều kiện này đứng **trước** phép kiểm `run`, nên khi `half_step=0`, `state>3` **và** `run=0`, `coil` vẫn bằng `1001` thay vì `0000` — vi phạm INV-5. **Có chủ ý hay sơ suất? Cần thầy xác nhận.** |
-| Đã kiểm chưa? | ❌ **Chưa** — mã này chưa từng chạy (`COMPILE_FAIL`). Xem `corner_cases.md` §3.1 CA-BS-2. |
+| Đã kiểm chưa? | Chưa có ca RTL riêng kiểm trạng thái `state > 3` khi đổi sang bước đủ; đây là khoảng trống còn lại. |
 
 ## 4. Bộ chia tần — điều khiển thời gian
 
@@ -144,11 +144,11 @@ FSMD của F06.
 | Hạng mục | Giá trị | Bằng chứng |
 |---|---|---|
 | Kiểu reset | **Đồng bộ**, tích cực mức thấp | `always_ff @(posedge clk)` không có `or negedge rst_n` (dòng 71) |
-| Phủ thanh ghi nào | `state`, `div_count` — **cả 11 FF dự kiến** | dòng 72–74 |
+| Phủ thanh ghi nào | `state`, `div_count`; tổng hợp báo 15 FF, gồm 4 FF giải mã pha | dòng 72–74 |
 | Trạng thái sau reset | `state = 0`, `div_count = 0` | dòng 73–74 |
 | `coil` sau reset | `0000` **nếu `run = 0`**; nếu `run = 1` thì `coil = 1001` ngay (vì `state=0`) | dòng 94 — **tổ hợp**, không chờ clock |
 | Chi phí phần cứng | Cổng chèn trên đường `D` của mỗi FF. Ở phản ví dụ: `and2_0 ×1` | netlist |
-| Đã kiểm chưa | ❌ **Chưa** — TB dòng 50–52 kiểm reset nhưng TB `COMPILE_FAIL` | `known_issues.md` |
+| Đã kiểm chưa | ✅ Reset được kiểm trong testbench; log hiện tại PASS | `05_VERIFICATION/simulation.log` |
 
 ### 6.1 Reset đặt lại bộ đếm, **không** đặt lại trục máy
 

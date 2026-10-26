@@ -110,29 +110,29 @@ cùng một FSM đếm vòng, nếu có encoder thì lỗi mất bước là phi
 Bằng chứng F08 là digital tuần tự thuần: `synth_stat.txt` chỉ có standard cell
 `sky130_fd_sc_hd`, `Number of memories: 0`; `power_report.txt` cho `Macro 0.0%`, `Pad 0.0%`.
 
-## 4. Vòng đời RTL → GDSII — trạng thái THẬT
+## 4. Vòng đời RTL → GDSII — trạng thái theo CI run
 
-Lấy từ `06_GDSII/physical_report.md` §1 và `brief/F08.md`.
+Run `RUN_2026-10-26_04-13-31`; archive và log trong [`../06_GDSII/`](../06_GDSII/).
 
 ```
  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
  │ Đặc tả      │──▶│ RTL         │──▶│ Mô phỏng    │──▶│ Tổng hợp    │
  │ (Charter)   │   │ .sv         │   │ hành vi     │   │ Yosys       │
- │     ✅      │   │     ✅      │   │ ❌ COMPILE  │   │     ✅      │
- │             │   │             │   │    _FAIL    │   │             │
+ │     ✅      │   │     ✅      │   │  ✅ PASS    │   │     ✅      │
+ │             │   │             │   │  Icarus     │   │             │
  └─────────────┘   └─────────────┘   └──────┬──────┘   └──────┬──────┘
                                             │                 │
                               known_issues.md│                 │ netlist.v
                               (lỗi TESTBENCH)│                 ▼
  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
  │ STA         │──▶│ Công suất   │──▶│ Floorplan   │──▶│ Placement   │
- │ OpenSTA     │   │ OpenSTA     │   │ LibreLane   │   │ LibreLane   │
- │     ✅      │   │  ✅ ước lg. │   │     ⬜      │   │     ⬜      │
+ │ OpenROAD    │   │ OpenROAD    │   │ LibreLane   │   │ LibreLane   │
+ │     ✅      │   │     ✅      │   │     ✅      │   │     ✅      │
  └─────────────┘   └─────────────┘   └─────────────┘   └─────────────┘
                                                               │
  ┌─────────────┐   ┌─────────────┐   ┌─────────────┐   ┌──────┴──────┐
  │ GDS         │◀──│ LVS         │◀──│ DRC         │◀──│ CTS + Route │
- │     ⬜      │   │     ⬜      │   │     ⬜      │   │     ⬜      │
+ │     ✅      │   │     ✅      │   │     ✅      │   │     ✅      │
  └─────────────┘   └─────────────┘   └─────────────┘   └─────────────┘
 
  ⬛ KHÔNG ÁP DỤNG (Charter mục 3):
@@ -140,9 +140,11 @@ Lấy từ `06_GDSII/physical_report.md` §1 và `brief/F08.md`.
     analog transistor · physical design tự làm · sign-off · tape-out · chế tạo
 ```
 
-### 4.1 Hai chỗ đứt trong chuỗi bằng chứng — phải đọc kỹ
+### 4.1 Lịch sử chẩn đoán trước khi vá và chạy CI
 
-F08 là đề có chuỗi bằng chứng yếu nhất trong ba đề F06–F08, vì **đứt ở hai chỗ**:
+Nội dung dưới đây ghi lại trạng thái cũ khi testbench chưa biên dịch và tổng hợp nhầm module; không dùng các kết luận này làm trạng thái hiện tại. Trạng thái hiện tại: RTL simulation PASS; archive LibreLane có GDS, P&R, DRC/LVS. Gate-level/SDF simulation chưa có bằng chứng. Xem [`../06_GDSII/physical_report.md`](../06_GDSII/physical_report.md).
+
+Ở trạng thái lịch sử đó, chuỗi bằng chứng bị đứt ở hai chỗ:
 
 ```
   ĐỨT 1 — không có bằng chứng hành vi nào:

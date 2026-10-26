@@ -4,11 +4,13 @@
 >
 > | Module | FSM | Vai trò trong hồ sơ |
 > |---|---|---|
-> | `f08_stepper_ctrl` | 8 trạng thái, **một** thanh ghi dùng chung cho cả hai chế độ | Thiết kế **đúng** — được mô phỏng (⚠️ nhưng TB không biên dịch được) |
+> | `f08_stepper_ctrl` | 8 trạng thái, **một** thanh ghi dùng chung cho cả hai chế độ | Thiết kế chính — RTL testbench hiện PASS |
 > | `f08_bad_dual_state_register` | **hai** thanh ghi riêng (2 bit + 3 bit) | Phương án thay thế để so sánh (Charter mục 2 câu 1) |
-> | `f08_bad_direction_reset` | 8 trạng thái + `dir_d` | **Phản ví dụ** — nhưng là module **được tổng hợp**, nguồn của mọi số liệu |
+> | `f08_bad_direction_reset` | 8 trạng thái + `dir_d` | **Phản ví dụ**, không phải top của báo cáo hiện hành |
 >
 > §1–§7 phân tích `f08_stepper_ctrl`. §8 phân tích phản ví dụ. §9 so hai cách mã hoá.
+> Các trạng thái chạy/đo cũ trong nội dung dưới đây là lịch sử; metrics hiện hành có tại
+> `06_GDSII/physical_report.md`.
 
 ---
 

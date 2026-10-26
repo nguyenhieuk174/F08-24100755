@@ -1,5 +1,13 @@
 # F08 — FSM điều khiển động cơ bước · Ghi chú thực hiện
 
+> **Cập nhật trạng thái:** RTL hiện đã mô phỏng PASS; testbench kiểm tra chuỗi tiến ở
+> cả hai chế độ, quay nghịch, đảo chiều, dừng/reset, wrap biên và bộ chia `speed_div=2`.
+> README nguồn công bố kết quả Yosys 101 cell / 15 FF / 835,8016 µm² và OpenSTA 3,48 ns;
+> archive LibreLane riêng ghi nhận 148 standard-cell instances, 15 FF và có GDS/DRC/LVS.
+> Các đoạn bên dưới mô tả phần phân tích trước khi vá; các trạng thái “chưa chạy/chưa đo”
+> trong đó là lịch sử. Trạng thái và giới hạn hiện tại nằm ở `05_VERIFICATION/` và
+> `06_GDSII/physical_report.md`.
+
 ---
 
 ## 1. Bài toán này thực chất là gì

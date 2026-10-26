@@ -18,14 +18,7 @@
 | **Độ khó** | Trung bình |
 | **Loại mạch** | Tuần tự |
 | **Quy mô ước lượng (Charter)** | ~150–220 cell · 1×1 tile |
-| **Tác giả** | Nguyễn Xuân Hiếu · 24100755 |
-| **Mô tả** | FSM điều khiển động cơ bước, ứng dụng cho trục quay máy in 3D mini |
-| **Ngôn ngữ** | Verilog |
-| **Clock trong `info.yaml`** | 0 Hz (chưa khai báo tần số mục tiêu) |
-| **Kích thước Tiny Tapeout** | 1×1 tile |
-| **Top module Tiny Tapeout khai báo** | `tt_um_eee703128_24100755` |
-| **RTL core** | `f08_stepper_ctrl` |
-| **Source file khai báo** | `project.v` |
+| **Top module** | `f08_stepper_ctrl` |
 | **Phiên bản hồ sơ** | v1.0 · 2026-09-24 |
 
 ---

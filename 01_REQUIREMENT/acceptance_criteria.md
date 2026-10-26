@@ -28,7 +28,7 @@ Trạng thái: ✅ ĐẠT (có bằng chứng do tool sinh) · ⚠️ CÓ VẤN 
 |---|---|---|---|---|
 | AC-1 | Bảng giao diện đầy đủ, nhất quán với đặc tả | Đối chiếu bảng với cổng module trong RTL | `02_SPECIFICATION/interface.md` §2 | ✅ |
 | AC-2 | Mỗi khẳng định kèm bằng chứng và điều kiện tạo ra | Rà từng dòng RTM | `07_TRACEABILITY/RTM.csv` | ✅ (phần đã chạy) |
-| AC-3 | Trả lời câu phân tích riêng bằng dữ liệu của chính mình | Charter mục 9 | `06_GDSII/sta/` · `06_GDSII/physical_report.md` | ✅ |
+| AC-3 | Trả lời câu phân tích riêng bằng dữ liệu của chính mình | Charter mục 9 | `06_GDSII/physical_report.md` · `06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json` | ⚠️ so sánh biến thể chưa đo |
 | AC-4 | Nêu giới hạn trung thực, không phát biểu vượt mức | Quét kết luận | `07_TRACEABILITY/limitations.md` | ✅ |
 
 ## 2. Tiêu chí chức năng
@@ -45,7 +45,7 @@ Trạng thái: ✅ ĐẠT (có bằng chứng do tool sinh) · ⚠️ CÓ VẤN 
 | # | Tiêu chí | Ngưỡng | Đo được | Trạng thái |
 |---|---|---|---|---|
 | AC-9 | Số flip-flop phù hợp phân loại Charter **Tuần tự** | > 0 | 15 | ✅ |
-| AC-10 | Quy mô cell hợp lý cho 1×1 tile | < 2 000 cell | 101 | ✅ |
+| AC-10 | Quy mô cell hợp lý cho 1×1 tile | < 2 000 cell | 148 standard-cell instances | ✅ |
 | AC-11 | RTL tổng hợp được ra standard cell sky130 | không lỗi | PASS | ✅ |
 
 ## 4. Tiêu chí thời gian
@@ -56,14 +56,16 @@ Trạng thái: ✅ ĐẠT (có bằng chứng do tool sinh) · ⚠️ CÓ VẤN 
 | AC-13 | Xác định được đường tới hạn (startpoint → endpoint) | speed_div[2] → _172_ | ✅ |
 | AC-14 | Nêu rõ giả định timing khi báo số | xem `02_SPECIFICATION/timing.md` §3 | ✅ |
 
-## 5. Tiêu chí vật lý (chưa chạy)
+## 5. Tiêu chí vật lý (GitHub Actions run)
 
 | # | Tiêu chí | Trạng thái |
 |---|---|---|
-| AC-15 | Floorplan / Placement / Routing | ⬜ cần PDK sky130A + LibreLane |
-| AC-16 | DRC sạch | ⬜ |
-| AC-17 | LVS khớp | ⬜ |
-| AC-18 | Sinh được file GDSII | ⬜ |
+| AC-15 | Floorplan / Placement / Routing | ✅ có archive LibreLane |
+| AC-16 | DRC sạch | ✅ metrics archive ghi Magic/KLayout không lỗi |
+| AC-17 | LVS khớp | ✅ metrics archive không có khác biệt device/net |
+| AC-18 | Sinh được file GDSII | ✅ `06_GDSII/runs/RUN_2026-10-26_04-13-31/final/gds/f08_stepper_ctrl.gds` |
+
+Chi tiết metric và log: [`../06_GDSII/physical_report.md`](../06_GDSII/physical_report.md). Đây là bằng chứng flow vật lý của RTL core, không phải tuyên bố ASIC sign-off. README nguồn vẫn đánh dấu P&R là chưa chạy; khác biệt với archive được ghi tại `07_TRACEABILITY/limitations.md`.
 
 ---
 

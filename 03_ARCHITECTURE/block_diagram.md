@@ -1,7 +1,8 @@
 # F08 · Sơ đồ khối bên trong (Block Diagram)
 
-> §1–§3 vẽ `f08_stepper_ctrl` (thiết kế đúng, **chưa được tổng hợp** — sơ đồ suy từ mã).
-> §4 vẽ `f08_bad_direction_reset` (module **được tổng hợp** — sơ đồ đọc từ netlist thật).
+> §1–§3 mô tả `f08_stepper_ctrl`; core hiện đã được tổng hợp và có 15 FF theo
+> README nguồn/archive. §4 là ví dụ lịch sử của `f08_bad_direction_reset`, không phải
+> top hiện hành. Số liệu hiện tại được phân biệt tại `06_GDSII/physical_report.md`.
 
 ---
 
@@ -173,7 +174,8 @@ chiếu STA thật sau khi đổi top.
 
 ### 4.2 Đường tới hạn — số THẬT
 
-`06_GDSII/sta/timing_report_max.txt`, slack **8,25 ns (MET)**:
+Đường STA dưới đây là số liệu lịch sử của phản ví dụ; tệp được viện dẫn trong bản phân tích
+cũ không nằm trong archive hiện tại. Không dùng số này làm STA của `f08_stepper_ctrl`.
 
 ```
   dir ──▶ _31_(or3_1) ──▶ _33_(a21oi_1) ──▶ _34_(o221ai_1) ──▶ _35_(a21oi_1) ──▶ _39_/D

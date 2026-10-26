@@ -1,6 +1,10 @@
 # F08 · Đặc tả chức năng (Functional Spec)
 
-> ## ⚠️ CẢNH BÁO ĐẦU FILE — TOP MODULE SAI · THIẾU CỔNG CHARTER MỤC 4 · **CHƯA THOẢ**
+> **Trạng thái hiện tại:** RTL core `f08_stepper_ctrl` PASS mô phỏng; archive physical-flow ở [`../06_GDSII/`](../06_GDSII/) có GDS, P&R, DRC và LVS. `src/project.v` có wrapper TinyTapeout và ánh xạ chân. Bảng trạng thái trong README nguồn vẫn ghi P&R chưa chạy; xem `07_TRACEABILITY/limitations.md` về khác biệt này.
+>
+> Nội dung cảnh báo bên dưới là **ảnh chụp lịch sử trước khi vá và chạy CI**, được giữ lại để truy vết chẩn đoán; các kết luận về việc chưa mô phỏng hoặc chưa tổng hợp không còn là trạng thái hiện tại.
+>
+> ## ⚠️ CẢNH BÁO LỊCH SỬ — TOP MODULE SAI · THIẾU CỔNG CHARTER MỤC 4
 >
 > **(a) Module được tổng hợp là PHẢN VÍ DỤ, không phải bộ điều khiển động cơ bước.**
 > `brief/F08.md` và `06_GDSII/synthesis/synth.ys` dòng 5 cho thấy top module đưa vào Yosys
@@ -151,7 +155,7 @@ Quan hệ này là bằng chứng cho thấy hai bảng **nhất quán vật lý
 | **INV-2** | Ở chế độ bước đủ, `s ∈ [0,3]`. | `properties.sv` dòng 3. **Có giá trị thật** — nhưng RTL **vi phạm tạm thời** khi vừa chuyển chế độ (xem §5) |
 | **INV-3** | Đổi `dir` mà **không** có nhịp bước ⟹ `s` không đổi. | `assert property (@(posedge clk) (dir != $past(dir)) && !step_tick \|-> state_dbg == $past(state_dbg));` ❌ chưa có |
 | **INV-4** | Mỗi nhịp bước làm `s` đổi **đúng 1 đơn vị** (theo modulo). | `assert property (step_tick \|=> (state_dbg == $past(next_expected)));` ❌ chưa có — **đây là invariant quan trọng nhất** và nó thiếu |
-| **INV-5** | `run = 0` ⟹ `coil = 0000`. | ✅ kiểm trong TB dòng 47 (nhưng TB chưa chạy được) |
+| **INV-5** | `run = 0` ⟹ `coil = 0000`. | ✅ testbench hiện tại kiểm tra khi dừng; lần chạy gần nhất PASS |
 | **INV-6** | Hai mẫu pha liên tiếp khác nhau đúng **một bit** ở chế độ nửa bước. | Kiểm được từ bảng §2.2: `1001→0001` (1 bit), `0001→0011` (1 bit)… ❌ chưa có assertion |
 | **INV-7** | `full[k] = half[2k]` — hai bảng nhất quán. | ✅ mô hình Python `test_phase_coverage()` kiểm gián tiếp (8 mẫu nửa bước phân biệt, 4 mẫu bước đủ phân biệt) |
 | **INV-8** | `div_count < speed_div` tại mọi thời điểm. | ❌ chưa có |

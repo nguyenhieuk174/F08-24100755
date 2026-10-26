@@ -1,6 +1,10 @@
 # F08 · Sự cố đã biết và phán xử (Known Issues)
 
-## Trạng thái: ✅ ĐÃ ÁP DỤNG (2026-09-24)
+## Trạng thái hiện tại: ✅ RTL đã vá và testbench PASS
+
+Các lỗi cú pháp và tổng hợp nhầm top bên dưới là chẩn đoán lịch sử, trước khi áp
+dụng patch. Bản gốc được giữ trong `08_ORIGINAL_SOURCE/`; bản đang dùng nằm trong
+`04_IMPLEMENTATION/` và `05_VERIFICATION/`.
 
 Nhật ký chi tiết: [`08_ORIGINAL_SOURCE/PATCHLOG.md`](../08_ORIGINAL_SOURCE/PATCHLOG.md).
 
@@ -9,7 +13,7 @@ Nhật ký chi tiết: [`08_ORIGINAL_SOURCE/PATCHLOG.md`](../08_ORIGINAL_SOURCE/
 | P-1 (§5.2, phương án B) | `logic [2:0] s_before;` chuyển lên phạm vi module | ✅ đã áp dụng |
 | P-2 (§7 việc số 6) | **Đổi top tổng hợp sang `f08_stepper_ctrl`** — đúng module mà testbench mô phỏng | ✅ đã áp dụng |
 | P-3 (**mới — không có trong bản vá đã soạn**) | Bỏ 2 dòng `if (half_step && (state === 3'bxxx)) state <= 3'd0;` ở RTL | ✅ đã áp dụng |
-| P-4 (§5.4, §7 việc số 4 và 5) | Thêm kiểm **chuỗi** (INV-4) cho nửa bước tiến, và ca "bước đủ tiến" của Charter mục 8 | ✅ đã áp dụng |
+| P-4 (§5.4, §7 việc số 4 và 5) | Thêm kiểm chuỗi tiến/lùi ở hai chế độ và các ca biên | ✅ đã áp dụng |
 
 **Phát hiện mới trong lúc vá — §6.1 của `functional_spec.md` dự đoán SAI.** Ở đó ghi
 *"Yosys thường rút gọn `===` thành hằng 0"* kèm chú "chưa kiểm chứng được vì module này
@@ -25,12 +29,12 @@ mô phỏng, nên log mô phỏng RTL trước và sau P-3 giống hệt nhau).
 |---|---|---|
 | `python3 reference_model.py` | PASS 7 ca | **PASS**, không đổi |
 | `iverilog -g2012` | **COMPILE_FAIL** (`syntax error`, dòng 32) | **PASS** — 0 lỗi, 4 cảnh báo `sorry:` vô hại |
-| `vvp sim.vvp` (RTL) | **0 chu kỳ** | **PASS** — `F08 TB completed`, `$finish` tại t=356 |
-| Mô phỏng mức cổng | chưa từng chạy | **PASS** — t=356 (bằng chứng netlist ≡ RTL) |
+| `vvp sim.vvp` (RTL) | **0 chu kỳ** | **PASS** — `F08 TB completed`, `$finish` tại t=486 trong log hiện tại |
+| Mô phỏng mức cổng | chưa chạy | **chưa có bằng chứng trong hồ sơ** |
 | `yosys` (sky130hd) | 22 cell / 4 FF / 190,1824 µm² — **của phản ví dụ** | **101 cell / 15 FF / 835,8016 µm²** — của `f08_stepper_ctrl` |
 
-Bảng §4 ("F08 hiện KHÔNG CÓ bằng chứng hành vi nào trên RTL") nay **đã lỗi thời**: L2 đạt,
-và có thêm bằng chứng mức cổng. Cái bẫy "4 FF khớp dải Charter mục 10" cũng đã lộ: module
+Bảng §4 ("F08 hiện KHÔNG CÓ bằng chứng hành vi nào trên RTL") là trạng thái lịch sử:
+L2 đạt, nhưng L4 chưa có bằng chứng. Cái bẫy "4 FF khớp dải Charter mục 10" cũng đã lộ: module
 thật có **15 FF** (3 `state` + 8 `div_count` + 4 thanh ghi đầu ra bảng pha do Yosys
 `proc_rom`/`memory_dff` sinh ra) — **ngoài** dải 4–6 FF mà Charter dự đoán.
 
@@ -38,7 +42,8 @@ thật có **15 FF** (3 `state` + 8 `div_count` + 4 thanh ghi đầu ra bảng p
 `s ∈ [4,7]` và bất đồng RTL ↔ Python ở dải đó) là **đổi hành vi**, cần quyết định riêng —
 xem PATCHLOG §5.
 
-Phần chẩn đoán bên dưới **giữ nguyên** làm tài liệu dạy học.
+Phần chẩn đoán bên dưới **giữ nguyên** làm tài liệu dạy học; các trạng thái trước vá trong
+phần đó không mô tả bản hiện tại.
 
 ---
 

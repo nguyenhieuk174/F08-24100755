@@ -5,7 +5,7 @@ project:
   discord:      ""
   description:  "Đề F08 yêu cầu thiết kế một FSM điều khiển động cơ bước. Đề tài này giúp sinh viên hiểu rõ hơn về cách thiết kế FSM trong Verilog và áp dụng vào các ứng dụng thực tế."
   language:     "Verilog"
-  clock_hz:     0        # đề TỔ HỢP để 0 · đề TUẦN TỰ ghi tần số
+  clock_hz:     0        # Chưa chốt tần số hệ thống; 10 ns trong SDC chỉ là giả định phân tích
 
   # Kích thước ô. 1x1 đủ cho hầu hết đề; đề nhóm J có thể cần 2x1.
   tiles: "1x1"
@@ -17,29 +17,29 @@ project:
     - "project.v"
 
 # ── Đặt tên chân · lấy theo cột "Giao diện" của đề em ────────────────────────
-# Chân nào không dùng thì để chuỗi rỗng "".
+# Mạch F08 dùng ui_in[7:0] = speed_div[7:0], uio_in[0] = dir, uio_in[1] = half_step, uio_in[2] = run.
 pinout:
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[0]: "speed_div[0]"
+  ui[1]: "speed_div[1]"
+  ui[2]: "speed_div[2]"
+  ui[3]: "speed_div[3]"
+  ui[4]: "speed_div[4]"
+  ui[5]: "speed_div[5]"
+  ui[6]: "speed_div[6]"
+  ui[7]: "speed_div[7]"
 
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
+  uo[0]: "coil[0]"
+  uo[1]: "coil[1]"
+  uo[2]: "coil[2]"
+  uo[3]: "coil[3]"
+  uo[4]: "state_dbg[0]"
+  uo[5]: "state_dbg[1]"
+  uo[6]: "state_dbg[2]"
   uo[7]: ""
 
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
+  uio[0]: "dir"
+  uio[1]: "half_step"
+  uio[2]: "run"
   uio[3]: ""
   uio[4]: ""
   uio[5]: ""

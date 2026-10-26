@@ -50,8 +50,8 @@ Trích nguyên văn Charter mục 1:
 | **F08 — FSM điều khiển động cơ bước** | **Digital, tuần tự** | Có ô nhớ, hoạt động theo cạnh clock |
 | Tầng xử lý phía sau | Digital | Tiêu thụ kết quả của F08 |
 
-Bằng chứng cho dòng phân loại của F08: tổng hợp thật cho **15 flip-flop**
-(`06_GDSII/synthesis/synth_stat.txt`).
+Bằng chứng cho dòng phân loại của F08: LibreLane ghi nhận **15 flip-flop** trong
+[`06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json`](../06_GDSII/runs/RUN_2026-10-26_04-13-31/final/metrics.json).
 
 ---
 
