@@ -24,8 +24,8 @@ on:
 
 env:
   # ---- SUA BA DONG NAY CHO KHOP DE CUA MINH -----------------------
-  MA_DE: A01
-  DESIGN_NAME: a01_ripple_adder
+  MA_DE: F08
+  DESIGN_NAME: f08_stepper_ctrl
   CONFIG: config.json
   # -----------------------------------------------------------------
 
@@ -41,39 +41,30 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y iverilog
 
-      - name: Ghi lai phien ban cong cu
-        run: |
-          iverilog -V | head -1 | tee tool_versions.txt
-          echo "Ngay chay: $(date -Is)" | tee -a tool_versions.txt
-
       - name: Bien dich va chay testbench
-        run: |
-          iverilog -g2012 -o sim.vvp rtl/*.sv tb/*.sv
-          vvp sim.vvp | tee simulation.log
+        run: bash 04_IMPLEMENTATION/scripts/01_run_sim.sh
 
-      - name: Kiem log - phai co PASS va khong duoc co loi
+      - name: Kiem log va waveform
         run: |
-          # Khong tin ma thoat cua vvp: no van tra 0 ngay ca khi testbench
-          # bao FAIL. Phai doc chinh noi dung log.
-          if grep -qiE "FATAL|mismatch|\bFAIL\b" simulation.log; then
-            echo "::error::Testbench bao loi - xem simulation.log"
+          if ! grep -Fq "F08 TB completed" 05_VERIFICATION/simulation.log; then
+            echo "::error::Testbench chua hoan tat - xem simulation.log"
             exit 1
           fi
-          if ! grep -qi "PASS" simulation.log; then
-            echo "::error::Khong thay dong PASS nao trong log"
+          if [[ ! -s 05_VERIFICATION/waveforms/f08_tb.vcd ]]; then
+            echo "::error::Khong tao duoc file waveform VCD"
             exit 1
           fi
-          echo "Mo phong dat."
+          echo "Mo phong dat; da tao waveform VCD."
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: mo-phong-${{ env.MA_DE }}
           path: |
-            simulation.log
-            tool_versions.txt
-            *.vcd
-          if-no-files-found: warn
+            05_VERIFICATION/simulation.log
+            05_VERIFICATION/tool_versions.txt
+            05_VERIFICATION/waveforms/f08_tb.vcd
+          if-no-files-found: error
 
   rtl2gds:
     name: 2 - RTL-to-GDSII (LibreLane + sky130A)

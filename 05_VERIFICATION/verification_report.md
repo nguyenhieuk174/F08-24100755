@@ -37,7 +37,7 @@
 | Lớp | Nội dung | Kết quả |
 |---|---|---|
 | L0 | Mô hình chuẩn Python | ✅ **PASS** |
-| L2 | Mô phỏng RTL | ✅ PASS — [`simulation.log`](simulation.log) |
+| L2 | Mô phỏng RTL và waveform VCD | ✅ PASS — [`simulation.log`](simulation.log), [`waveforms/f08_tb.vcd`](waveforms/f08_tb.vcd) |
 | L3 | Kiểm cấu trúc — số flip-flop | ✅ đo được **15** FF, phân loại Charter là **Tuần tự** |
 | L4 | Mô phỏng gate-level | ⬜ chưa chạy |
 | L5 | Mô phỏng post-layout (SDF) | ⬜ chưa chạy |
@@ -50,6 +50,8 @@ F08 TB completed
 ```
 
 Log đầy đủ của lần chạy lại hiện tại: [`simulation.log`](simulation.log).
+Waveform VCD được lưu tại [`waveforms/f08_tb.vcd`](waveforms/f08_tb.vcd) và được
+GitHub Actions tải lên trong artifact `mo-phong-F08`.
 
 ## 4. Kiểm cấu trúc — số flip-flop
 

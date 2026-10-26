@@ -7,6 +7,7 @@
 | Mô hình chuẩn | `05_VERIFICATION/golden_model/reference_model.py` và `python_reference_run.log` | CPython 3 |
 | RTL testbench | `05_VERIFICATION/testbench/f08_tb.sv` | Icarus Verilog 12.0 (`-g2012`) |
 | Kết quả testbench | `05_VERIFICATION/simulation.log` | `04_IMPLEMENTATION/scripts/01_run_sim.sh` |
+| Waveform VCD | `05_VERIFICATION/waveforms/f08_tb.vcd` | `04_IMPLEMENTATION/scripts/01_run_sim.sh`; GitHub Actions artifact `mo-phong-F08` |
 | Danh sách ca | `05_VERIFICATION/test_matrix.csv` | Đối chiếu ca Charter với kết quả đã chạy |
 
 ## 2. Tổng hợp, timing và power

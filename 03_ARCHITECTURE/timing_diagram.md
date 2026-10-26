@@ -4,15 +4,16 @@
 >
 > ## ⚠️ CẢNH BÁO BẮT BUỘC ĐỌC TRƯỚC
 >
-> **Các dạng sóng minh họa trong file này là suy luận từ mã nguồn, không phải VCD được thu.**
+> **Các dạng sóng minh họa trong file này là suy luận từ mã nguồn; chúng không được vẽ
+> trực tiếp từ VCD.**
 >
-> Testbench hiện đã biên dịch và PASS; log ở `05_VERIFICATION/simulation.log`. Thư mục
-> waveform chưa có VCD nên các hình dưới đây vẫn là kỳ vọng, không phải artifact waveform.
-> Xem `05_VERIFICATION/known_issues.md` để biết chẩn đoán lịch sử.
+> Testbench tạo VCD tại `05_VERIFICATION/waveforms/f08_tb.vcd`; GitHub Actions tải file
+> này lên cùng log kiểm thử dưới dạng artifact. Các bảng dưới đây vẫn là kỳ vọng theo
+> từng cạnh, không phải biểu diễn trực tiếp từ VCD. Xem `05_VERIFICATION/known_issues.md`
+> để biết chẩn đoán lịch sử.
 >
 > Các bảng dưới đây là **dự đoán có cơ sở** về giá trị theo từng cạnh và có thể đối chiếu
-> với log mô phỏng. Chúng không phải waveform/VCD thu được; log PASS xác nhận assertion,
-> không xác nhận toàn bộ dạng sóng minh họa.
+> với VCD và log mô phỏng. Assertion PASS không xác nhận mọi diễn giải trong giản đồ.
 >
 > Ngoài ra, ngay cả khi chạy được thì đó vẫn là mô phỏng **hành vi (zero-delay)**: không có
 > `t_ckq`, không có độ trễ cổng, không có glitch — mà `coil` là đầu ra **Mealy** nên nó

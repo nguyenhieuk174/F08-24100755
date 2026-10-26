@@ -19,6 +19,9 @@ module f08_tb;
     endtask
 
     initial begin
+        $dumpfile("waveforms/f08_tb.vcd");
+        $dumpvars(0, f08_tb);
+
         clk=0; rst_n=0; run=0; dir=1; half_step=1; speed_div=8'd1;
         repeat(2) tick();
         rst_n=1;

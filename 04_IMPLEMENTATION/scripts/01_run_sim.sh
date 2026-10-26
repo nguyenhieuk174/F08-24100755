@@ -21,9 +21,12 @@ iverilog -g2012 -o "$OUT/sim.vvp" \
     05_VERIFICATION/testbench/f08_tb.sv \
     05_VERIFICATION/testbench/properties.sv
 
-cd "$OUT" && vvp sim.vvp | tee simulation.log; cd "$ROOT"
-mv -f "$OUT"/*.vcd "$OUT/waveforms/" 2>/dev/null || true
+(cd "$OUT" && vvp sim.vvp) | tee "$OUT/simulation.log"
+if [[ ! -s "$OUT/waveforms/f08_tb.vcd" ]]; then
+    echo "[LOI] Khong tao duoc waveform: $OUT/waveforms/f08_tb.vcd" >&2
+    exit 1
+fi
 
 echo
 echo "Bang chung: $OUT/simulation.log"
-echo "Waveform  : $OUT/waveforms/"
+echo "Waveform  : $OUT/waveforms/f08_tb.vcd"
