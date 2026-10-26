@@ -1,0 +1,374 @@
+# F08 — FSM điều khiển động cơ bước · Ghi chú thực hiện
+
+---
+
+## 1. Bài toán này thực chất là gì
+
+Động cơ bước bốn pha quay bằng cách cấp dòng cho các cuộn dây theo một **chuỗi tuần hoàn**.
+Mỗi lần đổi sang mẫu kế tiếp, rotor quay đúng một bước góc. Khối F08 không sinh mô-men,
+không điều dòng — nó chỉ giữ **vị trí hiện tại trong chuỗi**, tiến hoặc lùi vị trí đó theo
+nhịp, và **giải mã** vị trí thành mẫu bốn pha.
+
+Nghe thì đơn giản, và phần chuỗi đúng là đơn giản. Độ khó thật nằm ở một câu của Charter
+mục 10: *"Đổi chiều bằng cách đảo thứ tự bảng mà quên vị trí hiện tại → mất bước."*
+
+Vì sao câu đó nặng đến vậy? Vì vòng điều khiển là **vòng hở**. Charter mục 3 đặt phản hồi
+vị trí ra ngoài phạm vi — không có encoder. Không có cơ chế nào phát hiện và sửa một bước
+bị mất. Phần mềm nghĩ đầu in ở `x = 10,0 mm`; thực tế nó ở `9,7 mm`; và sai lệch **tích luỹ
+qua mỗi lần đổi chiều**, không tự triệt tiêu.
+
+Vì vậy bài toán thật của F08 là: **giữ một bất biến (mỗi nhịp đúng một bước) trong một hệ
+không có cách nào kiểm tra lại bất biến đó.** Đó là lý do chất lượng assertion ở đề này
+quan trọng hơn ở F06 hay F07.
+
+Hai chế độ làm bài toán rộng thêm một chiều: bước đủ (4 trạng thái, mô-men cao, thô) và nửa
+bước (8 trạng thái, mịn gấp đôi, mô-men thấp hơn ở các bước lẻ). Charter mục 2 câu 1 hỏi
+thẳng: hai chế độ **dùng chung thanh ghi trạng thái hay riêng?**
+
+## 2. Bản chất kỹ thuật — cơ chế hoạt động
+
+Ba tầng điều khiển nối một chiều, không hồi tiếp:
+
+```
+  ① KHI NÀO BƯỚC ──▶ ② ĐI ĐÂU ──▶ ③ CẤP DÒNG CUỘN NÀO
+  (bộ chia tần)     (FSM vị trí)   (bộ giải mã pha)
+   8 FF               3 FF           0 FF (tổ hợp)
+```
+
+**Tầng ② là toàn bộ "trí tuệ" của F08, và nó chỉ tốn 3 flip-flop.** Tầng ① — chỉ đếm thời
+gian — tốn 8. Đây là mẫu chung của các khối điều khiển có tham số thời gian, và nó giống
+hệt F06 (bộ đếm N chiếm phần lớn FF): **chức năng rẻ, thời gian đắt.**
+
+Cơ chế cốt lõi của tầng ② gói trong một câu: **`state_next` là hàm thuần của `(state, dir,
+half_step)` — không có nhánh nào ép `state ← 0`.** Đổi `dir` không làm `state` nhúc nhích;
+nó chỉ đổi **dấu** của bước kế tiếp. Đó là toàn bộ nội dung câu hỏi Charter mục 2 câu 2, và
+là điểm phân biệt `f08_stepper_ctrl` với phản ví dụ.
+
+Cơ chế thứ hai là **chia sẻ thanh ghi giữa hai chế độ**, và lý do nó đúng là lý do **vật
+lý**, không phải lý do tiết kiệm: hai bảng pha thoả `full[k] = half[2k]`.
+
+```
+  nửa bước:  1001  0001  0011  0010  0110  0100  1100  1000
+              ▲           ▲           ▲           ▲
+  bước đủ:   1001        0011        0110        1100
+```
+
+Bước đủ là **tập con chẵn** của nửa bước — cùng một vòng điện nhìn ở hai độ phân giải. Dùng
+chung một thanh ghi là mô hình hoá đúng bản chất đó. Các mẫu lẻ của nửa bước (`0001`,
+`0010`, `0100`, `1000`) chỉ có **một** cuộn được cấp dòng — đó chính là lý do vật lý khiến
+mô-men ở các bước lẻ thấp hơn.
+
+Cơ chế thứ ba, và là chỗ tinh tế nhất: **`coil` là đầu ra Mealy**, không phải Moore.
+
+```systemverilog
+coil = run ? phase_decode(state, half_step) : 4'b0000;
+```
+
+`run` và `half_step` là **cổng vào trực tiếp**, nên `coil` đổi **giữa** hai cạnh clock. Điều
+đó có chủ ý và đúng: ngắt dòng cuộn là hành động an toàn, phải xảy ra **tức thì**. Một
+`coil` kiểu Moore sẽ giữ dòng thêm một chu kỳ sau khi `run` hạ — trên động cơ thật, đó là
+nhiệt thừa và mô-men giữ không mong muốn. Nếu clock dừng, nó giữ dòng mãi mãi.
+
+Đây là chỗ đáng đối chiếu cả nhóm F: F06 và F07 đều chọn Moore, F08 chọn Mealy, và **cả ba
+đều đúng vì bối cảnh ứng dụng khác nhau** — không phải vì một quy tắc chung.
+
+## 3. Đọc mã nguồn: RTL làm gì, từng dòng quan trọng
+
+Trái tim của tầng ②:
+
+```systemverilog
+always_comb begin
+    state_next = state;                                    // gán mặc định: chặn latch
+    if (half_step) begin
+        if (dir) state_next = (state == 3'd7) ? 3'd0 : state + 3'd1;
+        else     state_next = (state == 3'd0) ? 3'd7 : state - 3'd1;
+    end else begin
+        if (dir) state_next = (state[1:0] == 2'd3) ? 3'd0 : state + 3'd1;
+        else     state_next = (state[1:0] == 2'd0) ? 3'd3 : state - 3'd1;
+    end
+end
+```
+
+Ba điều đọc được:
+
+1. **`dir` không xuất hiện trong bất kỳ lệnh gán `state ← 0` nào.** Đó chính là cơ chế bảo
+   đảm đổi chiều không mất bước. So với phản ví dụ, khác biệt gói gọn trong việc **vắng
+   mặt** một nhánh `if`.
+2. **Bốn nhánh, bốn phép kiểm wrap khác nhau** — và đây là chỗ có vấn đề. Ở chế độ bước đủ
+   (hai dòng cuối), điều kiện wrap kiểm trên `state[1:0]` (**2 bit**) nhưng phép cộng/trừ
+   thực hiện trên **cả 3 bit**. Với `state ∈ [0,3]` hoàn toàn đúng. Với `state ∈ [4,7]` —
+   tàn dư sau khi hạ `half_step` giữa chừng — FSM đi `4→5→6→7→0`, mất tới 3 nhịp mới về dải
+   hợp lệ. Cách viết sạch hơn là mask: `state_next = {1'b0, state[1:0] + 2'd1}`.
+3. Ở chế độ nửa bước, hai phép kiểm `== 7` và `== 0` thực ra **dư**: `state` là 3 bit nên
+   `7 + 1` tự wrap về `0`. Viết tường minh làm ý định rõ ràng hơn, và `opt` xoá phần dư.
+
+Đoạn thứ hai — bộ giải mã đầu ra, nơi có cổng bảo vệ:
+
+```systemverilog
+always_comb begin
+    if (!half_step && (state > 3'd3))
+        coil = 4'b1001;                    // ← cổng bảo vệ cho vùng tàn dư
+    else
+        coil = run ? phase_decode(state, half_step) : 4'b0000;
+end
+```
+
+Cổng bảo vệ chống việc giải mã một `state` không thuộc bảng bước đủ — không có nó,
+`phase_decode` rơi vào `default: 4'b0000` và **ngắt dòng đột ngột** giữa lúc động cơ đang
+chạy. Chọn mẫu `1001` là hợp lý: nó là `half[0] = full[0]`, điểm gốc chung của hai chuỗi,
+và là mẫu **hai cuộn** nên giữ được mô-men.
+
+Nhưng phải ghi rõ giới hạn: **cổng bảo vệ chống được mẫu pha vô nghĩa, KHÔNG chống được mất
+bước.** Ép `coil = 1001` khi rotor đang ở vị trí ứng với `s = 5` là một bước nhảy vật lý.
+Và nó có một tác dụng phụ: điều kiện này đứng **trước** phép kiểm `run`, nên khi
+`half_step=0`, `state>3` **và** `run=0`, `coil` vẫn bằng `1001` thay vì `0000` — vi phạm
+INV-5. Có chủ ý hay sơ suất, cần thầy xác nhận.
+
+Đoạn thứ ba cần đọc kỹ là dòng 85–86, nằm trong `always_ff`:
+
+```systemverilog
+if (half_step && (state === 3'bxxx))
+    state <= 3'd0;
+```
+
+`===` là toán tử so sánh **4 trạng thái** — không có ý nghĩa trong phần cứng, vì silicon
+không có giá trị `X`. Trong mô phỏng, sau reset `state` không bao giờ là `X`, nên đây là
+**mã chết**. Tệ hơn, nó nằm **ngoài** chuỗi `if/else` phía trên, nên nếu đúng nó sẽ **ghi
+đè** lệnh `state <= state_next` trong cùng chu kỳ. Yosys thường rút gọn về hằng `0`; một số
+tool báo lỗi — **chưa kiểm chứng được** vì module này chưa được tổng hợp.
+
+Cuối cùng, module thật sự được tổng hợp — `f08_bad_direction_reset.sv`:
+
+```systemverilog
+else if (step_tick) begin
+    if (dir != dir_d)
+        state <= 3'd0;                                    // ← LỖI CỐ Ý
+    else if (dir) state <= (state == 3'd7) ? 3'd0 : state + 1'b1;
+    else          state <= (state == 3'd0) ? 3'd7 : state - 1'b1;
+    dir_d <= dir;
+end
+```
+
+Nhánh `if (dir != dir_d) state <= 3'd0` biến `s = 0` thành một **hố hút** cho mọi thao tác
+đổi chiều. Đổi chiều tại `s = 7` mất **7 bước**. Ý tưởng "khi đổi chiều thì bắt đầu lại
+chuỗi theo hướng mới" đúng cho một **bộ sinh mẫu**, sai cho một **bộ theo dõi vị trí** — và
+sự nhầm lẫn giữa hai vai trò đó chính là bản chất của lỗi.
+
+## 4. Vì sao chọn kiến trúc này
+
+Bốn cách lưu vị trí (`03_ARCHITECTURE/tradeoff.md` §2): một thanh ghi chung 3 bit, hai thanh
+ghi riêng, thanh ghi dịch one-hot 8 bit, hoặc đếm + ROM.
+
+Gói RTL có sẵn **hai** phương án đầu để so sánh trực tiếp — `f08_stepper_ctrl` (chung) và
+`f08_bad_dual_state_register` (riêng). Phương án riêng tốn **+2 FF** (5 thay vì 3) và —
+quan trọng hơn — **đánh mất quan hệ `full[k] = half[2k]`**: hai vị trí trôi độc lập, nên khi
+đổi chế độ rotor có thể nhảy một khoảng **tuỳ ý**, không chặn trên được.
+
+Phương án chung có vùng tàn dư, nhưng lỗi của nó **có chặn trên** (≤3 bước) và dự đoán
+được. Đó là lý do chọn nó: không phải vì rẻ hơn 2 FF, mà vì nó mô hình hoá đúng bản chất
+vật lý — hai chế độ là **cùng một vòng điện** ở hai độ phân giải.
+
+Bên trong phương án chung, quyết định lớn thứ hai là **`coil` kiểu Mealy** (§2). Nó tiết
+kiệm 4 FF và ngắt dòng tức thì, đổi lại phải chấp nhận đường tổ hợp in→out và khả năng
+glitch — chấp nhận được vì tải là cuộn cảm, lọc glitch một cách tự nhiên.
+
+## 5. Cách thực hiện — lộ trình 8 bước từ đặc tả tới GDSII
+
+| Bước | Việc | Trạng thái F08 | Bằng chứng |
+|---|---|---|---|
+| 1 | Bảng hành vi + invariant từ Charter | ✅ | `functional_spec.md` §2, §4 |
+| 2 | Mô hình chuẩn Python độc lập | ✅ PASS 7 ca | `python_reference_run.log` |
+| 3 | RTL mô tả tường minh FSM | ✅ | `f08_stepper_ctrl.sv` |
+| 4 | Testbench tự kiểm | ❌ **COMPILE_FAIL** — 0 chu kỳ chạy | `iverilog_compile.log` |
+| 5 | Tổng hợp, đọc `synth_stat` | ⚠️ **chạy sai top** (phản ví dụ) | `synth.ys` dòng 5 |
+| 6 | STA, đọc đường tới hạn | ⚠️ như trên | `timing_report_max.txt` |
+| 7 | Ước lượng công suất | ⚠️ như trên | `power_report.txt` |
+| 8 | P&R → DRC → LVS → GDS | ⬜ chưa chạy | `physical_report.md` §1 |
+
+**F08 là đề có chuỗi bằng chứng yếu nhất trong nhóm, vì đứt ở HAI chỗ:** bước 4 không có
+bằng chứng hành vi nào, và bước 5–7 đo nhầm module.
+
+| Đề | Mô phỏng | Tổng hợp đúng module? | Chuỗi bằng chứng |
+|---|---|---|---|
+| F06 | ✅ PASS | ❌ | Đứt 1 chỗ |
+| F07 | ⚠️ FATAL t=156, 11 assertion PASS | ✅ | **Liền mạch** |
+| **F08** | ❌ **COMPILE_FAIL** | ❌ | **Đứt 2 chỗ** |
+
+## 6. Số liệu thật đã đo được và cách đọc chúng
+
+| Chỉ số | Giá trị | Của module nào |
+|---|---:|---|
+| Số cell | **22** | `f08_bad_direction_reset` |
+| Flip-flop | **4** | như trên |
+| Diện tích | **190,1824 µm²** | như trên |
+| Đường tới hạn | `dir → _31_(or3_1) → _33_(a21oi_1) → _34_(o221ai_1) → _35_(a21oi_1) → _39_` | như trên |
+| Data arrival | **1,68 ns** | như trên |
+| Slack | **8,25 ns (MET)** | như trên |
+| WNS / TNS | 0,00 / 0,00 | như trên |
+| Công suất | **2,19e-05 W** — tuần tự 82,7 %, tổ hợp 17,3 % | như trên |
+| Mô phỏng RTL | **COMPILE_FAIL** | `f08_stepper_ctrl` |
+| Mô hình chuẩn Python | PASS 7 ca | — |
+
+**Những số này chứng minh gì:**
+
+- Một mạch trong gói tổng hợp được ra 22 cell `sky130_fd_sc_hd` thật, 4 FF (`_36_`=`dir_d`,
+  `_37_ _38_ _39_`=`state[2:0]`), timing MET ở chu kỳ giả định 10 ns, góc `tt_025C_1v80`.
+- Mô hình chuẩn Python nhất quán với đặc tả trên 7 ca, gồm cả chuỗi 16 nhịp đầy đủ.
+
+**Những số này KHÔNG chứng minh gì — và ở F08 đây là phần dài nhất:**
+
+1. **Chúng không nói gì về bộ điều khiển động cơ bước.** 22 cell / 4 FF / 190,1824 µm² là
+   của **phản ví dụ** — module không có `coil`, không có `run`, không có `half_step`, và
+   đổi chiều thì mất tới 7 bước.
+2. **Con số 4 FF là một cái bẫy.** Charter mục 10 dự đoán 4–6 FF; đo được đúng 4 ⟹ **khớp
+   dải** ⟹ dễ kết luận "làm đúng". Nhưng `f08_stepper_ctrl` cần 3 (`state`) + 8
+   (`div_count`) = **11 FF**, ngoài dải Charter, vì Charter không tính bộ chia tần.
+   *Một con số khớp dự đoán mà vẫn sai thì nguy hiểm hơn một con số lệch rõ ràng.*
+3. **1,68 ns không phải độ trễ logic.** 1,00 ns là `set_input_delay` giả định; logic thật
+   chỉ **0,68 ns** (4 cell). 60 % con số là giả định của người ràng buộc.
+4. **Slack 8,25 ns không dịch thành tần số.** Chưa P&R, chưa có ký sinh dây, một góc PVT.
+5. **Không có bằng chứng hành vi nào cho `f08_stepper_ctrl`.** Mô phỏng chưa chạy một chu
+   kỳ. Mọi phát biểu về hành vi của nó trong hồ sơ là **phân tích mã tĩnh**.
+
+**Hai phát hiện đọc được từ chính báo cáo STA:**
+
+- **Đường tới hạn bắt đầu từ `dir`, với fanout 5.** `dir` được dùng ba chỗ, trong đó có
+  **nhánh so sánh `dir != dir_d`** — chính nhánh gây lỗi mất bước. Logic sai vừa sai vừa
+  đắt: nó đặt chuỗi 4 cổng lên đường chậm nhất.
+- **Cổng đầu tiên đắt nhất (0,29 ns), bốn cổng sau rẻ dần (0,15 → 0,13 → 0,11).** Nguyên
+  nhân là fanout: `or3_1` phải lái tải lớn hơn. Đây là minh hoạ sạch về ảnh hưởng của fanout
+  lên delay, đọc được ngay trong một báo cáo mà không cần thí nghiệm gì thêm.
+
+## 7. Trả lời các câu hỏi kỹ thuật của Charter (mục 2)
+
+**Câu 1 — *"Chuỗi bước đủ (4 trạng thái) và nửa bước (8 trạng thái) dùng chung thanh ghi
+trạng thái hay riêng?"***
+**`f08_stepper_ctrl` dùng CHUNG** — một `logic [2:0] state` duy nhất; bước đủ dùng 4/8 mã.
+Gói có sẵn phương án **riêng** để so sánh (`f08_bad_dual_state_register`: 2 bit + 3 bit =
+5 FF). Chung thắng vì hai lý do, lý do thứ hai quan trọng hơn: (a) tiết kiệm 2 FF; (b) giữ
+được quan hệ vật lý `full[k] = half[2k]` — hai chế độ là **cùng một vòng điện** ở hai độ
+phân giải, không phải hai chuyển động độc lập. Đổi lại, phương án chung sinh **vùng tàn
+dư** khi hạ `half_step` lúc `s ≥ 4` — nhưng lỗi đó **có chặn trên** (≤3 nhịp), còn lỗi của
+phương án riêng thì không.
+
+**Câu 2 — *"Đổi chiều giữa chừng — FSM phải làm gì để không nhảy bước?"***
+**Không làm gì với `state` cả.** `state_next` phải là hàm thuần của `(state, dir,
+half_step)`; `dir` chỉ đổi **dấu** của bước kế tiếp. `f08_stepper_ctrl` làm đúng —
+không có nhánh `state ← 0` nào. `f08_bad_direction_reset` làm sai — `if (dir != dir_d)
+state <= 3'd0` làm mất tới 7 bước mỗi lần đổi chiều.
+⚠️ Bằng chứng trên RTL: **không có** (mô phỏng chưa chạy). Chỉ có mô hình Python
+`test_direction_change()` kiểm tại `s=5 → 4` và `s=2 → 1` — PASS.
+
+**Câu 3 — *"Số ô nhớ dự đoán, và phần nào dành cho vị trí trong chuỗi?"***
+⬜ **Chưa đo được.** Suy từ mã: **11 FF** tổng, trong đó **3 FF (27 %)** cho vị trí và
+**8 FF (73 %)** cho bộ chia tần. Phần "thông minh" rẻ, phần đếm thời gian đắt — giống hệt
+F06. Cần: đổi top trong `synth.ys` sang `f08_stepper_ctrl` rồi chạy `02_run_synth.sh`.
+
+## 8. Trả lời câu phân tích riêng (Charter mục 9)
+
+> *"Nêu cách mã hoá trạng thái của mình và đối chiếu số flip-flop trong báo cáo; bàn xem
+> dùng bảng tra hay dùng logic tổ hợp thì rẻ hơn."*
+
+**(a) Cách mã hoá — ✅ trả lời được ngay từ mã.** Một thanh ghi nhị phân 3 bit dùng chung,
+và **mã hoá chính là vị trí trong chuỗi**: `state = k` ⟺ rotor ở bước thứ `k`. Không dùng
+`typedef enum`, có lý do: trạng thái ở đây là **con số có ý nghĩa số học** (`state ± 1`,
+`state[1:0]`), không phải một khái niệm. Mã hoá vì vậy là **một phần của đặc tả**, và Yosys
+không được phép tái mã hoá — khác hẳn F06/F07.
+
+**(b) Đối chiếu số flip-flop — ⬜ CHƯA ĐO.** Đo được 4 FF nhưng của phản ví dụ. Suy từ mã:
+11 FF (3 vị trí + 8 chia tần). Charter mục 10 dự đoán 4–6 và **dự đoán thiếu**, vì không
+tính bộ chia tần.
+
+**(c) Bảng tra hay logic tổ hợp — ⬜ CHƯA ĐO**, nhưng phải làm rõ một hiểu nhầm trước:
+**trong RTL hiện tại KHÔNG có "bảng tra" theo nghĩa phần cứng.** `phase_decode` viết bằng
+`case`, nhưng Yosys dựng nó thành **mạng cổng tổ hợp** — `synth_stat.txt` ghi
+`Number of memories: 0`. Câu hỏi thật sự là *ROM macro hay logic tổ hợp*, và ở quy mô
+8 mục × 4 bit = 32 bit, **logic tổ hợp thắng rõ**: mỗi bit `coil` chỉ là một hàm 4 biến mà
+`abc` tối giản rất sâu, trong khi một ROM macro có overhead cố định lớn hơn nhiều so với 32
+bit dữ liệu. ROM chỉ đáng khi bảng hàng trăm mục.
+
+Còn một cấu trúc thứ ba đáng bàn: **thanh ghi dịch one-hot 8 bit** — giải mã pha gần như
+miễn phí (mỗi bit ánh xạ thẳng sang mẫu), đổi lại 8 FF thay vì 3. Đây là đánh đổi FF ↔ logic
+thuần tuý, và là phương án duy nhất có thể thắng về **timing** (không có bộ tăng, chỉ có
+phép dịch).
+
+Câu trả lời đầy đủ cần **ba** con số: diện tích của kiến trúc hiện tại, của biến thể ROM, và
+của one-hot. Hiện có **không con số nào**.
+
+## 9. Những chỗ sinh viên hay sai và cách phát hiện
+
+| # | Sai lầm | Hậu quả | Phát hiện bằng bằng chứng nào |
+|---|---|---|---|
+| 1 | **Đổi chiều thì reset chuỗi về 0** | Mất tới 7 bước mỗi lần đảo chiều; sai lệch **tích luỹ**, không tự sửa (vòng hở) | Đổi chiều tại `s = 5`: mạch đúng cho `4`, mạch sai cho `0`. ⚠️ Testbench hiện tại đổi chiều tại `s = 1`, nơi hai kết quả **trùng nhau** — **không phân biệt được**. Mô hình Python kiểm tại `s=5` và `s=2`. |
+| 2 | **Assertion kiểm DẢI thay vì kiểm CHUỖI** | FSM nhảy bước `0→2→4→6` **qua được mọi assertion hiện có** | `assert(state_dbg <= 3'd7)` với `state_dbg` 3 bit là **luôn đúng** — không thể FAIL. Phải kiểm `state_dbg == k` từng nhịp. |
+| 3 | **Dùng hai thanh ghi riêng cho hai chế độ** | +2 FF, và **mất quan hệ `full[k]=half[2k]`** ⟹ rotor nhảy tuỳ ý khi đổi chế độ | So hai bảng pha: nếu `full[k] ≠ half[2k]` thì mô hình đã sai bản chất. Python `test_phase_coverage()`. |
+| 4 | **Bỏ `run` khỏi biểu thức `coil`** | Cuộn giữ dòng khi máy dừng ⟹ nóng, tốn điện, mô-men giữ | `assert(coil == 4'b0000)` sau khi hạ `run` (TB dòng 47). |
+| 5 | **Đăng ký `coil` (Moore) cho "sạch"** | Dòng cuộn ngắt trễ một chu kỳ; nếu clock dừng thì không bao giờ ngắt | Đọc RTL: `coil` phải ở `always_comb`, không ở `always_ff`. Hoặc: hạ `run` giữa chu kỳ và xem `coil` có đổi ngay không. |
+| 6 | **Tin số FF vì nó khớp dải Charter** | 4 FF khớp dải 4–6 nhưng là của **phản ví dụ**; mạch thật cần 11 | Đối chiếu `hierarchy -check -top` trong `synth.ys` với module trong testbench. **Kiểm danh tính trước khi kiểm giá trị.** |
+| 7 | **Dùng `===` để "xử lý trạng thái X"** | Không tổng hợp được; mã chết; và nằm ngoài `if/else` nên có thể ghi đè | Tìm `===`/`!==` trong mã tổng hợp được. Cách đúng: `` `ifdef SIMULATION `` + `assert`. |
+| 8 | **Quên vùng tàn dư khi hạ `half_step` lúc `s ≥ 4`** | `state` ngoài dải bước đủ tới 3 nhịp; cổng bảo vệ ép `coil = 1001` | Ca CA-BS-2 (`corner_cases.md` §3.1) — hiện **chưa có**, và cổng bảo vệ là **mã chưa từng chạy**. |
+| 9 | **Dùng `==` thay `>=` trong bộ chia tần** | Nếu `speed_div` giảm xuống dưới `div_count` giữa chừng, `==` **không bao giờ khớp** ⟹ bộ đếm chạy tự do | Ca đổi `speed_div` giữa chừng — hiện **chưa có**. |
+| 10 | **Quên rằng reset đặt lại bộ đếm, không đặt lại trục máy** | Sau reset phần mềm nghĩ trục ở 0; thực tế ở đâu không ai biết | Không phát hiện được bằng mô phỏng. Phải đọc hợp đồng ở `system_diagram.md` §2.1 nghĩa vụ 5 (homing). |
+| 11 | **Sửa DUT vì testbench không biên dịch được** | Vô nghĩa — lỗi là `syntax error` **trong file testbench**, DUT chưa hề được đụng tới | Đọc đường dẫn trong thông báo lỗi: `f08_tb.sv:32`, không phải `f08_stepper_ctrl.sv`. |
+
+## 10. Câu hỏi mentor nên đặt khi bảo vệ
+
+| # | Câu hỏi | Đáp án mong đợi |
+|---|---|---|
+| 1 | Hai chế độ dùng chung hay riêng thanh ghi? Vì sao? | **Chung**, 3 bit. Không phải để tiết kiệm 2 FF, mà vì `full[k] = half[2k]` — hai chế độ là cùng một vòng điện ở hai độ phân giải. |
+| 2 | Đổi chiều thì FSM làm gì với `state`? | **Không làm gì.** `dir` chỉ đổi dấu của bước kế tiếp. Chỉ ra rằng `state_next` là hàm thuần của `(state, dir, half_step)`. |
+| 3 | Vì sao lỗi mất bước ở đề này nghiêm trọng hơn ở một bộ đếm thường? | Vòng điều khiển **hở** — không có encoder (Charter mục 3). Mỗi bước mất là mất vĩnh viễn và **tích luỹ**. |
+| 4 | `coil` là Mealy hay Moore? Vì sao chọn vậy? | **Mealy** — `run` và `half_step` là cổng vào trực tiếp trong `always_comb`. Chọn vậy để **ngắt dòng cuộn tức thì**; chờ một chu kỳ clock là chờ vô ích, và nếu clock dừng thì chờ mãi. |
+| 5 | Đối chiếu với F06 và F07 — vì sao ba đề chọn khác nhau? | F06/F07 chọn Moore (chống glitch; ở F07 glitch gây tranh chấp bus). F08 chọn Mealy (an toàn đòi hỏi tức thì; tải cuộn cảm lọc glitch tự nhiên). **Bối cảnh quyết định, không phải quy tắc chung.** |
+| 6 | Đo được 4 FF, Charter dự đoán 4–6. Vậy là đúng? | **Không.** 4 FF là của `f08_bad_direction_reset`. Mạch thật cần 11 FF (3 + 8 chia tần), ngoài dải Charter. Charter dự đoán thiếu vì không tính bộ chia tần. |
+| 7 | Điều gì xảy ra nếu hạ `half_step` khi `state = 5`? | Vào **vùng tàn dư**: `state` đi `5→6→7→0` (tiến) hoặc `5→4→3` (lùi), mất ≤3 nhịp. `coil` bị cổng bảo vệ ép về `1001`. Rotor **có thể giật**. Cổng bảo vệ chống mẫu pha vô nghĩa, không chống mất bước. |
+| 8 | Đường tới hạn đi từ đâu tới đâu, và điều đó nói lên gì? | `dir → or3_1 → a21oi_1 → o221ai_1 → a21oi_1 → state[2]`, 1,68 ns. `dir` có **fanout 5** vì nhánh so sánh `dir != dir_d` — chính nhánh gây lỗi. **Logic sai vừa sai vừa đắt.** |
+| 9 | Vì sao cổng đầu tiên tốn 0,29 ns còn cổng cuối chỉ 0,11 ns? | **Fanout.** `or3_1` lái tải lớn hơn (`dir` fanout 5) nên slew xấu, delay tăng. Các cổng sau fanout 1. |
+| 10 | Mô phỏng báo `syntax error` ở `f08_tb.sv:32`. Ai sai? | **Testbench.** Khai báo `logic [2:0] s_before;` đặt **sau** câu lệnh trong block — vi phạm IEEE 1800. Một số công cụ tha thứ, Icarus thì không. DUT chưa hề được đụng tới. |
+| 11 | Hồ sơ F08 có bằng chứng hành vi nào cho `f08_stepper_ctrl`? | **Không có bất kỳ bằng chứng nào.** Mô phỏng chưa chạy một chu kỳ. Chỉ có mô hình Python — và Python **bất đồng với RTL** ở dải `s ∈ [4,7]`. |
+| 12 | `phase_decode` viết bằng `case` — đó là ROM hay logic? | **Logic tổ hợp.** `synth_stat.txt` ghi `Number of memories: 0`. Với 8×4 bit, logic thắng ROM rõ; ROM chỉ đáng khi bảng hàng trăm mục. |
+
+## 11. Giới hạn: đã chứng minh được gì, chưa chứng minh được gì
+
+**Đã chứng minh:**
+
+- Mô hình chuẩn Python nhất quán với đặc tả trên 7 ca, gồm chuỗi 16 nhịp đầy đủ ở cả hai
+  chế độ, cả hai chiều, và hai ca đổi chiều giữa chừng.
+- Một mạch trong gói (`f08_bad_direction_reset`) tổng hợp được ra 22 cell sky130 thật, 4 FF,
+  190,1824 µm²; timing MET với slack 8,25 ns ở chu kỳ giả định 10 ns, góc `tt_025C_1v80`,
+  **sau tổng hợp**.
+- Hai bảng pha trong RTL thoả `full[k] = half[2k]` — kiểm được bằng đọc mã.
+
+**Chưa chứng minh — và ở F08 danh sách này dài bất thường:**
+
+- **Bất cứ điều gì về hành vi của `f08_stepper_ctrl`.** Mô phỏng `COMPILE_FAIL`, **0 chu kỳ
+  chạy**. Chuỗi bước, đổi chiều, ngắt dòng khi dừng, bộ chia tần — **không một cái nào** có
+  bằng chứng thực nghiệm.
+- **Số cell / FF / diện tích / đường tới hạn của `f08_stepper_ctrl`** — chưa từng tổng hợp.
+- **Charter mục 9 chưa trả lời được** phần (b) và (c) — cần tổng hợp đúng top và thêm hai
+  biến thể so sánh.
+- **Yêu cầu Charter mục 4 chưa thoả** đối với top hiện tại: thiếu `run`, `half_step`,
+  `coil`. (`f08_stepper_ctrl` thì gần thoả, chỉ thừa `speed_div` 8 bit không có trong ngân
+  sách chân.)
+- **Ba chỗ trong RTL cần thầy xem lại**: `===` ở dòng 85–86; vùng tàn dư khi hạ `half_step`
+  lúc `s ≥ 4`; tác dụng phụ của cổng bảo vệ khi `run = 0`.
+- **Bất đồng giữa RTL và mô hình Python ở dải `s ∈ [4,7]`** — Python dùng `% 4` nên không
+  mô hình hoá tàn dư. Không phải "mô hình chuẩn sai", nhưng phải chốt đặc tả.
+- Netlist tương đương RTL; glitch trên `coil` (đường Mealy); độ lệch giữa 4 bit `coil` sau
+  routing; biên qua các góc PVT; DRC/LVS/GDS: ⬜.
+
+**Hành động đề xuất, chờ thầy duyệt** (hồ sơ không tự sửa RTL/testbench), theo thứ tự ưu
+tiên:
+
+1. **Vá lỗi cú pháp testbench** (`known_issues.md` §5) — điều kiện tiên quyết cho mọi việc
+   khác.
+2. Bổ sung ca **bước đủ tiến** (Charter mục 8 yêu cầu, hiện thiếu) và ca **đổi chiều tại
+   `s ≠ 1`** (ca hiện tại không phân biệt được mạch đúng với mạch sai).
+3. Bổ sung **INV-4** kiểm **chuỗi** chứ không kiểm dải — đây là invariant quan trọng nhất
+   của đề và nó **không tồn tại ở bất kỳ đâu** trong gói.
+4. Đổi top tổng hợp sang `f08_stepper_ctrl`, chạy lại tổng hợp/STA/công suất.
+5. Quyết định về ba chỗ RTL ở trên.
+
+---
+
+*Phiên bản: v1.0 · Ngày: 2026-09-24*

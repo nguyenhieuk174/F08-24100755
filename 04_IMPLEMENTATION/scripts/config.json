@@ -1,0 +1,38 @@
+{
+  "project_id": "F08",
+  "title": "FSM điều khiển động cơ bước",
+  "group": "F · Máy trạng thái hữu hạn (FSM)",
+  "difficulty": "Trung bình",
+  "circuit_type": "Tuần tự",
+  "charter_scale": "~150–220 cell · 1×1 tile",
+  "top_module": "f08_stepper_ctrl",
+  "clock_port": "clk",
+  "has_clock": true,
+  "expected_ff_zero": false,
+  "technology": "sky130A",
+  "std_cell_library": "sky130_fd_sc_hd",
+  "liberty_corner": "tt_025C_1v80",
+  "flow": "LibreLane/OpenROAD",
+  "measured": {
+    "sim": "PASS",
+    "pyref": "PASS",
+    "synth": "PASS",
+    "sta": "PASS",
+    "cells": 101,
+    "flip_flops": 15,
+    "area_um2": 835.8016,
+    "critical_path_ns": 3.48,
+    "startpoint": "speed_div[2]",
+    "endpoint": "_172_",
+    "power_total_w": "7.10e-05"
+  },
+  "not_run": [
+    "floorplan",
+    "placement",
+    "routing",
+    "drc",
+    "lvs",
+    "gds"
+  ],
+  "source_dir_origin": "F08_FINAL_MENTOR_PACKAGE_v1_0"
+}

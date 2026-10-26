@@ -1,0 +1,6 @@
+F08 reference model PASS
+Full-step forward/reverse PASS
+Half-step forward/reverse PASS
+Mid-operation direction change PASS
+Phase-table coverage PASS
+Shared-state representation PASS
